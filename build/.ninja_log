@@ -1,0 +1,5 @@
+# ninja log v7
+0	570	1793859338298148537	CMakeFiles/the-last-user.dir/src/main.cpp.o	213108685a3e06a6
+570	599	1793859338869154106	bin/the-last-user	d36b2e1600f28015
+1	530	1793859501652516526	CMakeFiles/the-last-user.dir/src/main.cpp.o	213108685a3e06a6
+530	569	1793859502180524180	bin/the-last-user	d36b2e1600f28015
