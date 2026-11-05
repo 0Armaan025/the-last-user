@@ -2,10 +2,7 @@
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_timer.h>
 
-Game::Game(int width, int height) {
-  screenHeight = height;
-  screenWidth = width;
-}
+Game::Game(int width, int height) : screenWidth(width), screenHeight(height) {}
 
 Game::~Game() {
   if (renderer) {
@@ -73,6 +70,8 @@ void Game::update(float deltaTime) {
   // and update player or something
 
   handleEvents();
+  player.handleInput();
+  player.update(deltaTime);
 }
 void Game::draw() {
   SDL_SetRenderDrawColor(renderer, 24, 35, 30, 255);
