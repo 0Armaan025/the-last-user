@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../include/core/Camera.hpp"
 #include "../../include/core/Player.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
@@ -31,6 +32,7 @@ public:
 private:
   int screenWidth, screenHeight;
 
+  Camera camera;
   bool running = false;
 
   SDL_Renderer *renderer = nullptr;

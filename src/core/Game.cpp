@@ -2,7 +2,8 @@
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_timer.h>
 
-Game::Game(int width, int height) : screenWidth(width), screenHeight(height) {}
+Game::Game(int width, int height)
+    : screenWidth(width), screenHeight(height), camera(width, height) {}
 
 Game::~Game() {
   if (renderer) {
@@ -72,11 +73,16 @@ void Game::update(float deltaTime) {
   handleEvents();
   player.handleInput();
   player.update(deltaTime);
+
+  camera.follow(player.getCenterX(), player.getCenterY());
 }
 void Game::draw() {
   SDL_SetRenderDrawColor(renderer, 24, 35, 30, 255);
   SDL_RenderClear(renderer);
-  player.draw(renderer);
+  // drawing not the actual player but the player with the new camera coords
+  SDL_Rect screenPlayer = camera.apply(player.getBounds());
+  SDL_SetRenderDrawColor(renderer, 180, 100, 50, 255);
+  SDL_RenderFillRect(renderer, &screenPlayer);
   SDL_RenderPresent(renderer);
 }
 

@@ -3,3 +3,7 @@
 530	560	1793897542732366080	bin/the-last-user	95c2a058883fdaef
 1	529	1793897542204361640	CMakeFiles/the-last-user.dir/src/core/Player.cpp.o	6c8799af6207188e
 1	533	1793864217970715749	CMakeFiles/the-last-user.dir/src/core/Game.cpp.o	61141513d2e7cdf8
+3	417	1793898801297431171	CMakeFiles/the-last-user.dir/src/core/Camera.cpp.o	c09f119feb9da776
+3	550	1793898801295879957	CMakeFiles/the-last-user.dir/src/core/Player.cpp.o	6c8799af6207188e
+2	559	1793898801294879922	CMakeFiles/the-last-user.dir/src/main.cpp.o	213108685a3e06a6
+559	593	1793898801851899201	bin/the-last-user	5cff5231f6139747

@@ -13,6 +13,11 @@ public:
 
   void update(float deltaTime);
 
+  float getCenterX() const;
+  float getCenterY() const;
+
+  SDL_Rect getBounds() const;
+
 private:
   float x = 50.0f;
   float y = 50.0f;

@@ -62,3 +62,12 @@ void Player::handleInput() {
     velocityX += 10;
   }
 }
+
+// center is like uhh we get the x coordinate of the player and 25 to it coz the
+// width is 50, so we get (25,0)
+float Player::getCenterX() const { return x + 25.0f; }
+// and for this we get (0,25)
+
+float Player::getCenterY() const { return y + 25.0f; }
+
+SDL_Rect Player::getBounds() const { return bounds; }
