@@ -28,7 +28,7 @@ bool Game::init() {
 
   SDL_Window *sdl_window = SDL_CreateWindow(
       "The Last User", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-      screenWidth, screenHeight, SDL_WINDOW_RESIZABLE);
+      screenWidth, screenHeight, SDL_WINDOW_SHOWN);
 
   if (!sdl_window) {
     std::cout << "could not make a window" << std::endl;
@@ -73,11 +73,12 @@ void Game::update(float deltaTime) {
   player.handleInput();
   player.update(deltaTime);
 
-  camera.follow(player.getCenterX(), player.getCenterY());
+  camera.follow(player.getCenterX(), player.getCenterY(), deltaTime);
 }
 void Game::draw() {
   SDL_SetRenderDrawColor(renderer, 24, 35, 30, 255);
   SDL_RenderClear(renderer);
+  // drawGrid();
   // drawing not the actual player but the player with the new camera coords
   SDL_Rect screenPlayer = camera.apply(player.getBounds());
   SDL_SetRenderDrawColor(renderer, 180, 100, 50, 255);
@@ -103,4 +104,23 @@ void Game::run() {
     update(deltaTime);
     draw();
   }
+}
+
+// debuggin
+
+void Game::drawGrid() {
+  // SDL_SetRenderDrawColor(renderer, 55, 65, 60, 255);
+  // constexpr int GRID_SIZE = 100;
+  // constexpr int WORLD_WIDTH = 3000;
+  // constexpr int WORLD_HEIGHT = 2000;
+  //
+  // for (int x = 0; x <= WORLD_WIDTH; x += GRID_SIZE) {
+  //   SDL_Rect line = camera.apply({x, 0, 1, WORLD_HEIGHT});
+  //   SDL_RenderFillRect(renderer, &line);
+  // }
+  //
+  // for (int y = 0; y <= WORLD_HEIGHT; y += GRID_SIZE) {
+  //   SDL_Rect line = camera.apply({0, y, WORLD_WIDTH, 1});
+  //   SDL_RenderFillRect(renderer, &line);
+  // }
 }

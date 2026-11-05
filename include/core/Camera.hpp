@@ -4,7 +4,8 @@
 class Camera {
 public:
   Camera(int screenWidth, int screenHeight);
-  void follow(float targetX, float targetY);
+  void follow(float targetX, float targetY, float deltaTime);
+  // now let's try adding a smoothing factor
 
   SDL_Rect apply(const SDL_Rect &worldObject) const;
 
@@ -13,5 +14,10 @@ private:
   float y = 0.0f;
 
   int screenWidth;
+
+  float smoothing = 5.0f;
   int screenHeight;
+
+  int worldWidth = 3000;
+  int worldHeight = 2000;
 };

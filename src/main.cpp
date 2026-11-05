@@ -1,4 +1,4 @@
-#include "../src/core/Game.cpp"
+#include "../include/core/Game.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>

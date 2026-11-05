@@ -27,6 +27,8 @@ public:
   SDL_Renderer *getRenderer() const;
   SDL_Window *getWindow() const;
 
+  void drawGrid();
+
   bool isRunning() const;
 
 private:

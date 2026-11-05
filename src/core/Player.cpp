@@ -33,6 +33,7 @@ void Player::update(float deltaTime) {
 
   bounds.x = static_cast<int>(x);
   bounds.y = static_cast<int>(y);
+  std::cout << "Player: " << x << ", " << y << '\n';
 }
 
 void Player::handleInput() {
