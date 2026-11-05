@@ -33,11 +33,6 @@ void Player::update(float deltaTime) {
 
   bounds.x = static_cast<int>(x);
   bounds.y = static_cast<int>(y);
-
-  // update pos
-
-  x += velocityX * speed * deltaTime;
-  y += velocityY * speed * deltaTime;
 }
 
 void Player::handleInput() {
@@ -59,7 +54,7 @@ void Player::handleInput() {
     velocityX -= 1.0f;
   }
   if (keyboard[SDL_SCANCODE_D]) {
-    velocityX += 10;
+    velocityX += 1.0f;
   }
 }
 

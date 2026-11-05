@@ -70,7 +70,6 @@ void Game::update(float deltaTime) {
   // handle Input
   // and update player or something
 
-  handleEvents();
   player.handleInput();
   player.update(deltaTime);
 

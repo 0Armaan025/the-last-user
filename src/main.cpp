@@ -7,7 +7,7 @@
 int main() {
 
   const int SCREEN_WIDTH = 900;
-  const int SCREEN_HEIGHT = 1200;
+  const int SCREEN_HEIGHT = 480;
   Game game(SCREEN_WIDTH, SCREEN_HEIGHT);
 
   game.run();
