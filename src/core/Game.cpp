@@ -77,6 +77,7 @@ void Game::update(float deltaTime) {
 void Game::draw() {
   SDL_SetRenderDrawColor(renderer, 24, 35, 30, 255);
   SDL_RenderClear(renderer);
+  player.draw(renderer);
   SDL_RenderPresent(renderer);
 }
 

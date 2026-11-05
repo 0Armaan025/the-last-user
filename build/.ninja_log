@@ -1,5 +1,7 @@
 # ninja log v7
-1	536	1793863575626404310	CMakeFiles/the-last-user.dir/src/main.cpp.o	213108685a3e06a6
-536	569	1793863576161412066	bin/the-last-user	d36b2e1600f28015
-2	562	1793863786455460494	CMakeFiles/the-last-user.dir/src/main.cpp.o	213108685a3e06a6
-562	593	1793863787015468612	bin/the-last-user	d36b2e1600f28015
+0	526	1793864171942048517	CMakeFiles/the-last-user.dir/src/main.cpp.o	213108685a3e06a6
+2	56	1793864254651247471	bin/the-last-user	95c2a058883fdaef
+2	524	1793864217971715764	CMakeFiles/the-last-user.dir/src/core/Player.cpp.o	6c8799af6207188e
+1	533	1793864217970715749	CMakeFiles/the-last-user.dir/src/core/Game.cpp.o	61141513d2e7cdf8
+1	532	1793864294093819232	CMakeFiles/the-last-user.dir/src/core/Player.cpp.o	6c8799af6207188e
+532	565	1793864294624826929	bin/the-last-user	95c2a058883fdaef

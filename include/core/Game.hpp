@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../include/core/Player.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
 #include <iostream>
@@ -13,6 +14,7 @@ public:
   Game &operator=(const Game &) = delete;
 
   bool init();
+  Player player;
 
   void handleEvents();
   void update(float deltaTime);

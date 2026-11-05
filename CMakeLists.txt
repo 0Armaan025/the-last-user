@@ -15,6 +15,7 @@ pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
 
 add_executable(the-last-user
   src/main.cpp
+  src/core/Player.cpp
 )
 
 target_include_directories(the-last-user
