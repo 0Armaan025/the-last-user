@@ -27,5 +27,5 @@ private:
   float velocityY = 0.0f;
   float speed = 200.0f;
 
-  SDL_Rect bounds{1775, 1350, 50, 50};
+  SDL_Rect bounds{1775, 1150, 50, 50};
 };

@@ -1,12 +1,11 @@
 # ninja log v7
-1	551	1793899672545063958	CMakeFiles/the-last-user.dir/src/main.cpp.o	213108685a3e06a6
-598	636	1793899673142063080	bin/the-last-user	297f4acfe9564ef0
-1	547	1793899124387009798	CMakeFiles/the-last-user.dir/src/core/Player.cpp.o	6c8799af6207188e
-1	568	1793899672546046231	CMakeFiles/the-last-user.dir/src/core/Game.cpp.o	61141513d2e7cdf8
-1	598	1793899672546522830	CMakeFiles/the-last-user.dir/src/core/Camera.cpp.o	c09f119feb9da776
-6	458	1793991108478642661	CMakeFiles/the-last-user.dir/src/world/World.cpp.o	f3db1b126e20fde6
 5	572	1793991108477379657	CMakeFiles/the-last-user.dir/src/main.cpp.o	213108685a3e06a6
+602	638	1793991109074377326	bin/the-last-user	7fd898cd77db0227
 5	574	1793991108477890796	CMakeFiles/the-last-user.dir/src/core/Player.cpp.o	6c8799af6207188e
 5	580	1793991108478227665	CMakeFiles/the-last-user.dir/src/core/Game.cpp.o	61141513d2e7cdf8
 6	602	1793991108478379654	CMakeFiles/the-last-user.dir/src/core/Camera.cpp.o	c09f119feb9da776
-602	638	1793991109074377326	bin/the-last-user	7fd898cd77db0227
+6	458	1793991108478642661	CMakeFiles/the-last-user.dir/src/world/World.cpp.o	f3db1b126e20fde6
+2	529	1793991167318316762	CMakeFiles/the-last-user.dir/src/main.cpp.o	213108685a3e06a6
+2	529	1793991167318973198	CMakeFiles/the-last-user.dir/src/core/Player.cpp.o	6c8799af6207188e
+2	533	1793991167319361805	CMakeFiles/the-last-user.dir/src/core/Game.cpp.o	61141513d2e7cdf8
+533	565	1793991167849317605	bin/the-last-user	7fd898cd77db0227
