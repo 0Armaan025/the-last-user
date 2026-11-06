@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_render.h>
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 
@@ -67,3 +68,20 @@ float Player::getCenterX() const { return x + 25.0f; }
 float Player::getCenterY() const { return y + 25.0f; }
 
 SDL_Rect Player::getBounds() const { return bounds; }
+
+void Player::constrainToWorld(int worldWidth, int worldHeight) {
+  x = std::clamp(x, 0.0f, static_cast<float>(worldWidth - bounds.w));
+
+  // LESSON 02: so what's gonna happen here is let's say the width is 10, and
+  // player width is 2, 10-2 = 8 so it'sg onna stop when player reaches x, other
+  // rest will be covered by the width of the player
+  //
+  //
+  // NOW WHY AM I WRITING ALL THIS? COZ IM DUMB AND I'LL FORGET BASIC STUFF
+  // MAKING THE NEXT GAME
+
+  y = std::clamp(y, 0.0f, static_cast<float>(worldHeight - bounds.h));
+
+  bounds.x = static_cast<int>(x);
+  bounds.y = static_cast<int>(y);
+}

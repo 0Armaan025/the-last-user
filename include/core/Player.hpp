@@ -16,6 +16,7 @@ public:
   float getCenterX() const;
   float getCenterY() const;
 
+  void constrainToWorld(int worldWidth, int worldHeight);
   SDL_Rect getBounds() const;
 
 private:

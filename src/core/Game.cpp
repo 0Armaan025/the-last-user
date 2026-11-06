@@ -72,6 +72,7 @@ void Game::update(float deltaTime) {
 
   player.handleInput();
   player.update(deltaTime);
+  player.constrainToWorld(2400, 1600);
 
   camera.follow(player.getCenterX(), player.getCenterY(), deltaTime);
 }
