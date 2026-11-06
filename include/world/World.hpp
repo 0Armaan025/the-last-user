@@ -25,12 +25,14 @@ public:
 
   void drawComputer(SDL_Renderer *renderer, const Camera &camera);
 
+  SDL_Rect getComputerBounds() const;
+
   void drawSkeletons(SDL_Renderer *renderer, const Camera &camera,
                      SDL_Point pos);
   // we just gonna pass the array and draw em
 
 private:
-  SDL_Rect computer{1120, 720, 160, 130};
+  SDL_Rect computerBounds{1120, 720, 160, 130};
 
   // random coords
   std::array<SDL_Point, 5> skeletonPos{

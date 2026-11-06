@@ -14,27 +14,49 @@ void Player::draw(SDL_Renderer *renderer) {
   SDL_RenderFillRect(renderer, &bounds);
 }
 
-void Player::update(float deltaTime) {
-  // let us allow the playre to move
+void Player::update(float deltaTime, const SDL_Rect &obstacle) {
+  // this logic is messed up for collision, so gonna rewrite it
+  float magnitude =
+      std::sqrt((velocityX * velocityX) + (velocityY * velocityY));
+  // doing this to prevent diagonal movement faster :((
+  //
+  //
 
-  float direction_magnitude =
-      sqrt((velocityX * velocityX) + (velocityY * velocityY));
+  float moveX = velocityX;
+  float moveY = velocityY;
 
-  if (direction_magnitude > 0) {
-    // normalize
-
-    velocityX = velocityX / direction_magnitude;
-    velocityY = velocityY / direction_magnitude;
+  if (magnitude > 0.0f) {
+    moveX = moveX / magnitude;
+    moveY = moveY / magnitude;
+    // rn im gonna normalize THESE HEHE AGAIN
   }
 
-  x += velocityX * speed * deltaTime;
-  y += velocityY * speed * deltaTime;
+  float dx = moveX * speed * deltaTime;
+  float dy = moveY * speed * deltaTime;
 
-  // syncing rectangel with our pos
+  float nextX = x + dx;
 
-  bounds.x = static_cast<int>(x);
-  bounds.y = static_cast<int>(y);
-  std::cout << "Player: " << x << ", " << y << '\n';
+  SDL_Rect nextBounds = bounds;
+  nextBounds.x = static_cast<int>(nextX);
+  // for future me: use this to detect intersection
+
+  if (!SDL_HasIntersection(&nextBounds, &obstacle)) {
+    x = nextX;
+    bounds.x = static_cast<int>(x);
+  }
+
+  // for y axix now
+  // hehe, don't underestimate me, im a jee student
+
+  float nextY = y + dy;
+
+  nextBounds = bounds;
+  nextBounds.y = static_cast<int>(nextY);
+
+  if (!SDL_HasIntersection(&nextBounds, &obstacle)) {
+    y = nextY;
+    bounds.y = static_cast<int>(y);
+  }
 }
 
 void Player::handleInput() {

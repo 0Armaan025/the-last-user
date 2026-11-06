@@ -11,7 +11,7 @@ public:
   void handleInput();
   void draw(SDL_Renderer *renderer);
 
-  void update(float deltaTime);
+  void update(float deltaTime, const SDL_Rect &obstacle);
 
   float getCenterX() const;
   float getCenterY() const;

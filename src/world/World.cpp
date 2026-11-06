@@ -55,7 +55,7 @@ void World::drawComputer(SDL_Renderer *renderer, const Camera &camera) {
 
   // also gonna make sure each and every rect is returned after camera.apply()
   // so i don't go facing cam isues later
-  SDL_Rect desk = camera.apply(computer);
+  SDL_Rect desk = camera.apply(computerBounds);
 
   SDL_SetRenderDrawColor(renderer, 75, 48, 32, 255);
   SDL_RenderFillRect(renderer, &desk);
@@ -114,3 +114,5 @@ void World::drawSkeletons(SDL_Renderer *renderer, const Camera &camera,
   drawBone({x + 37, y + 30, 7, 55});
   // spine ^
 }
+
+SDL_Rect World::getComputerBounds() const { return computerBounds; }
