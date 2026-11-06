@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL.h>
 #include <array>
+#include <vector>
 
 #include "../core/Camera.hpp"
 
@@ -26,15 +27,20 @@ public:
   void drawComputer(SDL_Renderer *renderer, const Camera &camera);
 
   SDL_Rect getComputerBounds() const;
+  std::vector<SDL_Rect> getSkeletonBounds() const;
 
   void drawSkeletons(SDL_Renderer *renderer, const Camera &camera,
                      SDL_Point pos);
   // we just gonna pass the array and draw em
+  //
+  //
+  //
 
 private:
   SDL_Rect computerBounds{1120, 720, 160, 130};
 
   // random coords
-  std::array<SDL_Point, 5> skeletonPos{
-      {{900, 700}, {1450, 700}, {850, 1000}, {1500, 1050}, {1200, 550}}};
+
+  std::vector<SDL_Rect> skeletonBuonds{
+      {900, 700}, {1450, 700}, {850, 1000}, {1500, 1050}, {1200, 550}};
 };
