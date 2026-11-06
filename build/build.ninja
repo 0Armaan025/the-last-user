@@ -89,6 +89,16 @@ build CMakeFiles/the-last-user.dir/src/core/Camera.cpp.o: CXX_COMPILER__the-last
   OBJECT_FILE_DIR = CMakeFiles/the-last-user.dir/src/core
   TARGET_SUPPORT_DIR = CMakeFiles/the-last-user.dir
 
+build CMakeFiles/the-last-user.dir/src/world/World.cpp.o: CXX_COMPILER__the-last-user_unscanned_Debug /home/armaan025/Desktop/ARMAAN/Coding/projects/the-last-user/src/world/World.cpp || cmake_object_order_depends_target_the-last-user
+  CONFIG = Debug
+  DEFINES = -DGAME_VERSION=\"0.1.0\"
+  DEP_FILE = CMakeFiles/the-last-user.dir/src/world/World.cpp.o.d
+  FLAGS = -g -std=c++20 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -D_GNU_SOURCE=1 -D_REENTRANT
+  INCLUDES = -I/home/armaan025/Desktop/ARMAAN/Coding/projects/the-last-user/include -isystem /usr/include/SDL2
+  OBJECT_DIR = CMakeFiles/the-last-user.dir
+  OBJECT_FILE_DIR = CMakeFiles/the-last-user.dir/src/world
+  TARGET_SUPPORT_DIR = CMakeFiles/the-last-user.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target the-last-user
@@ -97,7 +107,7 @@ build CMakeFiles/the-last-user.dir/src/core/Camera.cpp.o: CXX_COMPILER__the-last
 #############################################
 # Link the executable bin/the-last-user
 
-build bin/the-last-user: CXX_EXECUTABLE_LINKER__the-last-user_Debug CMakeFiles/the-last-user.dir/src/main.cpp.o CMakeFiles/the-last-user.dir/src/core/Player.cpp.o CMakeFiles/the-last-user.dir/src/core/Game.cpp.o CMakeFiles/the-last-user.dir/src/core/Camera.cpp.o | /usr/lib/libSDL2.so
+build bin/the-last-user: CXX_EXECUTABLE_LINKER__the-last-user_Debug CMakeFiles/the-last-user.dir/src/main.cpp.o CMakeFiles/the-last-user.dir/src/core/Player.cpp.o CMakeFiles/the-last-user.dir/src/core/Game.cpp.o CMakeFiles/the-last-user.dir/src/core/Camera.cpp.o CMakeFiles/the-last-user.dir/src/world/World.cpp.o | /usr/lib/libSDL2.so
   CONFIG = Debug
   DEP_FILE = CMakeFiles/the-last-user.dir/link.d
   FLAGS = -g

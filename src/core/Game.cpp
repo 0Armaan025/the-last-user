@@ -80,6 +80,9 @@ void Game::draw() {
   SDL_RenderClear(renderer);
   // drawGrid();
   // drawing not the actual player but the player with the new camera coords
+  // let us draw the world before the player
+
+  world.draw(renderer, camera);
   SDL_Rect screenPlayer = camera.apply(player.getBounds());
   SDL_SetRenderDrawColor(renderer, 180, 100, 50, 255);
   SDL_RenderFillRect(renderer, &screenPlayer);

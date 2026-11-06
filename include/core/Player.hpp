@@ -19,12 +19,13 @@ public:
   SDL_Rect getBounds() const;
 
 private:
-  float x = 50.0f;
-  float y = 50.0f;
+  // updating position to be closer to the computer idk why i put it there :sob:
+  float x = 1175.0f;
+  float y = 1350.0f;
 
   float velocityX = 0.0f;
   float velocityY = 0.0f;
   float speed = 200.0f;
 
-  SDL_Rect bounds{50, 50, 50, 50};
+  SDL_Rect bounds{1775, 1350, 50, 50};
 };

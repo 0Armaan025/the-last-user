@@ -18,6 +18,6 @@ private:
   float smoothing = 5.0f;
   int screenHeight;
 
-  int worldWidth = 3000;
-  int worldHeight = 2000;
+  int worldWidth = 2400;
+  int worldHeight = 1600;
 };

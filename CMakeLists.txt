@@ -18,6 +18,7 @@ add_executable(the-last-user
   src/core/Player.cpp
   src/core/Game.cpp
   src/core/Camera.cpp
+  src/world/World.cpp
 )
 
 target_include_directories(the-last-user

@@ -2,6 +2,7 @@
 
 #include "../../include/core/Camera.hpp"
 #include "../../include/core/Player.hpp"
+#include "../../include/world/World.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
 #include <iostream>
@@ -20,6 +21,8 @@ public:
   void handleEvents();
   void update(float deltaTime);
   void draw();
+  // finally teh wrold
+  World world;
 
   void run();
   void quit();
@@ -40,3 +43,9 @@ private:
   SDL_Renderer *renderer = nullptr;
   SDL_Window *window = nullptr;
 };
+
+
+
+
+
+
