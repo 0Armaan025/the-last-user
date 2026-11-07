@@ -11,6 +11,32 @@
 #include <cmath>
 #include <string>
 
+struct StoryFile {
+  const char *name;
+  const char *content;
+};
+
+struct StoryFolder {
+  const char *name;
+  const StoryFile *files;
+  int fileCount;
+};
+
+const StoryFile systemFiles[] = {
+    {"readme.txt", "SYSTEM RECOVERY LOG \n\n"
+                   "Date: 7 Nov\n"
+                   "Status: CRITICAL\n\n"
+                   "The network has gone silent.\n"
+                   "No response from outside stations.\n"
+                   "I am beginning to think we are the only ones left."},
+    {"last_message.txt", "PERSONAL MESSAGE \n"
+                         "If someone finds this computer...\n"
+                         "Do not assume the town is empty.\n\n"
+                         "I heard the telephoner ring yesterday"
+                         "There is no telephone line connected.\n"}};
+
+const StoryFolder storyFolders[] = {{"Documents", systemFiles, 2}};
+
 Game::Game(int width, int height)
     : screenWidth(width), screenHeight(height), camera(width, height) {}
 
@@ -127,6 +153,11 @@ void Game::handleEvents() {
       if (SDL_PointInRect(&mousePosition, &closeButton)) {
         if (driveOpen) {
           driveOpen = false;
+          SDL_Rect documentsFolder{135, 120, 300, 35};
+
+          if (SDL_PointInRect(&mousePosition, &documentsFolder)) {
+            selectedFolder = 0;
+          }
         } else {
 
           myComputerOpen = false;
@@ -393,6 +424,14 @@ void Game::drawWindowsXP() {
 
     if (driveOpen) {
       drawDriveWindow();
+
+      if (selectedFolder == 0) {
+        drawFolderWindow();
+
+        if (openedFile >= 0) {
+          drawTextFile();
+        }
+      }
     }
   }
 }
@@ -608,5 +647,90 @@ void Game::drawDriveWindow() {
     }
 
     y += 42;
+  }
+}
+
+void Game::drawFolderWindow() {
+  // alright let's begin
+
+  SDL_Rect panel{100, 55, screenWidth - 200, screenHeight - 110};
+
+  SDL_SetRenderDrawColor(renderer, 235, 235, 225, 255);
+
+  SDL_RenderFillRect(renderer, &panel);
+
+  SDL_Rect title{100, 55, screenWidth - 200, 32};
+
+  SDL_SetRenderDrawColor(renderer, 20, 75, 155, 255);
+
+  SDL_RenderFillRect(renderer, &title);
+
+  SDL_Surface *surface =
+      TTF_RenderUTF8_Blended(font, "Documents", {255, 255, 255, 255});
+
+  if (surface) {
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    if (texture) {
+      SDL_Rect dst{110, 62, surface->w, surface->h};
+      SDL_RenderCopy(renderer, texture, nullptr, &dst);
+      SDL_DestroyTexture(texture);
+    }
+
+    SDL_FreeSurface(surface);
+  }
+
+  SDL_Rect content{115, 100, screenWidth - 230, screenHeight - 170};
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+  SDL_RenderFillRect(renderer, &content);
+
+  int y = 120;
+
+  for (int i = 0; i < storyFolders[0].fileCount; ++i) {
+    SDL_Surface *fileSurface = TTF_RenderUTF8_Blended(
+        font, storyFolders[0].files[i].name, {30, 30, 30, 255});
+
+    if (!fileSurface)
+      continue;
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, fileSurface);
+
+    if (texture) {
+      SDL_Rect dst{145, y, fileSurface->w, fileSurface->h};
+      SDL_RenderCopy(renderer, texture, nullptr, &dst);
+      SDL_DestroyTexture(texture);
+    }
+
+    SDL_FreeSurface(fileSurface);
+    y += 45;
+  }
+}
+
+void Game::drawTextFile() {
+  SDL_Rect panel{80, 45, screenWidth - 160, screenHeight - 90};
+  SDL_SetRenderDrawColor(renderer, 235, 235, 220, 255);
+
+  SDL_RenderFillRect(renderer, &panel);
+
+  SDL_Rect title{80, 45, screenWidth - 160, 32};
+  SDL_SetRenderDrawColor(renderer, 20, 75, 155, 255);
+  SDL_RenderFillRect(renderer, &title);
+
+  const char *content = storyFolders[0].files[openedFile].content;
+
+  SDL_Surface *surface = TTF_RenderUTF8_Blended_Wrapped(
+      font, content, {25, 25, 25, 255}, screenWidth - 210);
+
+  if (surface) {
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    if (texture) {
+      SDL_Rect dst{105, 100, surface->w, surface->h};
+      SDL_RenderCopy(renderer, texture, nullptr, &dst);
+      SDL_DestroyTexture(texture);
+    }
+
+    SDL_FreeSurface(surface);
   }
 }

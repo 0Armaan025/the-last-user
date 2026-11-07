@@ -60,6 +60,12 @@ private:
   bool myComputerOpen = false;
 
   bool driveOpen = false;
+
+  int selectedFolder = -1;
+  int openedFile = -1;
+
+  void drawFolderWindow();
+  void drawTextFile();
   void drawMyComputerWindow();
 
   void drawDriveWindow();
