@@ -292,9 +292,13 @@ void Game::draw() {
   }
   world.draw(renderer, camera);
   SDL_Rect screenPlayer = camera.apply(player.getBounds());
-  drawInteractionPrompt();
+
   SDL_SetRenderDrawColor(renderer, 180, 100, 50, 255);
+
   SDL_RenderFillRect(renderer, &screenPlayer);
+  drawAtmosphere();
+  drawInteractionPrompt();
+
   SDL_RenderPresent(renderer);
 }
 
@@ -394,6 +398,43 @@ void Game::drawInteractionPrompt() {
   SDL_RenderCopy(renderer, texture, nullptr, &textRect);
   SDL_DestroyTexture(texture);
   SDL_FreeSurface(surface);
+}
+
+void Game::drawAtmosphere() {
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+  // let us make dark stuff
+
+  for (int i = 0; i < 4; ++i) {
+    int thickness = (i + 1) * 28;
+    Uint8 alpha = static_cast<Uint8>(12 + i * 8);
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
+
+    // top
+
+    SDL_Rect top{0, 0, screenWidth, thickness};
+    SDL_RenderFillRect(renderer, &top);
+
+    // bottom
+
+    SDL_Rect bottom{0, screenHeight - thickness, screenWidth, thickness};
+
+    SDL_RenderFillRect(renderer, &bottom);
+
+    SDL_Rect left{0, 0, thickness, screenHeight};
+    SDL_RenderFillRect(renderer, &left);
+
+    // right
+
+    SDL_Rect right{screenWidth - thickness, 0, thickness, screenHeight};
+
+    SDL_RenderFillRect(renderer, &right);
+  }
+
+  // restoring the blend mode now
+
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 }
 
 void Game::drawWindowsXP() {

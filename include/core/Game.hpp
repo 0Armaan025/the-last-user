@@ -71,4 +71,8 @@ private:
 
   void drawDriveWindow();
   void drawWindowsXP();
+
+  // atmopshere
+
+  void drawAtmosphere();
 };
