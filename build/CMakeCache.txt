@@ -22,7 +22,10 @@ CMAKE_AR:FILEPATH=/usr/bin/ar
 
 //Choose the type of build, options are: None Debug Release RelWithDebInfo
 // MinSizeRel ...
-CMAKE_BUILD_TYPE:STRING=Debug
+CMAKE_BUILD_TYPE:STRING=
+
+//Enable/Disable color output during build.
+CMAKE_COLOR_MAKEFILE:BOOL=ON
 
 //CXX compiler
 CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/c++
@@ -68,9 +71,6 @@ CMAKE_EXE_LINKER_FLAGS_RELEASE:STRING=
 //Flags used by the linker during RELWITHDEBINFO builds.
 CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 
-//Enable/Disable output of build database during the build.
-CMAKE_EXPORT_BUILD_DATABASE:BOOL=
-
 //Enable/Disable output of compile commands during generation.
 CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=
 
@@ -83,8 +83,8 @@ CMAKE_INSTALL_PREFIX:PATH=/usr/local
 //Path to a program.
 CMAKE_LINKER:FILEPATH=/usr/bin/ld
 
-//Program used to build from build.ninja files.
-CMAKE_MAKE_PROGRAM:FILEPATH=/usr/bin/ninja
+//Path to a program.
+CMAKE_MAKE_PROGRAM:FILEPATH=/usr/bin/make
 
 //Flags used by the linker during the creation of modules during
 // all build types.
@@ -228,6 +228,12 @@ TheLastUser_SOURCE_DIR:STATIC=/home/armaan025/Desktop/ARMAAN/Coding/projects/the
 //Path to a library.
 pkgcfg_lib_SDL2_SDL2:FILEPATH=/usr/lib/libSDL2.so
 
+//Path to a library.
+pkgcfg_lib_SDL2_TTF_SDL2:FILEPATH=/usr/lib/libSDL2.so
+
+//Path to a library.
+pkgcfg_lib_SDL2_TTF_SDL2_ttf:FILEPATH=/usr/lib/libSDL2_ttf.so
+
 
 ########################
 # INTERNAL cache entries
@@ -245,6 +251,8 @@ CMAKE_CACHE_MAJOR_VERSION:INTERNAL=4
 CMAKE_CACHE_MINOR_VERSION:INTERNAL=4
 //Patch version of cmake used to create the current loaded cache
 CMAKE_CACHE_PATCH_VERSION:INTERNAL=5
+//ADVANCED property for variable: CMAKE_COLOR_MAKEFILE
+CMAKE_COLOR_MAKEFILE-ADVANCED:INTERNAL=1
 //Path to CMake executable.
 CMAKE_COMMAND:INTERNAL=/usr/bin/cmake
 //Path to cpack program executable.
@@ -288,14 +296,12 @@ CMAKE_EXE_LINKER_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
 CMAKE_EXE_LINKER_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO
 CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: CMAKE_EXPORT_BUILD_DATABASE
-CMAKE_EXPORT_BUILD_DATABASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_EXPORT_COMPILE_COMMANDS
 CMAKE_EXPORT_COMPILE_COMMANDS-ADVANCED:INTERNAL=1
 //Name of external makefile project generator.
 CMAKE_EXTRA_GENERATOR:INTERNAL=
 //Name of generator.
-CMAKE_GENERATOR:INTERNAL=Ninja
+CMAKE_GENERATOR:INTERNAL=Unix Makefiles
 //Generator instance identifier.
 CMAKE_GENERATOR_INSTANCE:INTERNAL=
 //Name of generator platform.
@@ -409,14 +415,59 @@ SDL2_STATIC_LIBS:INTERNAL=
 SDL2_STATIC_LIBS_L:INTERNAL=
 SDL2_STATIC_LIBS_OTHER:INTERNAL=
 SDL2_STATIC_LIBS_PATHS:INTERNAL=
+SDL2_TTF_CFLAGS:INTERNAL=-I/usr/include/SDL2;-I/usr/include;-D_GNU_SOURCE=1;-D_REENTRANT;-I/usr/include/harfbuzz;-I/usr/include/glib-2.0;-I/usr/lib/glib-2.0/include;-I/usr/include/sysprof-6;-pthread;-I/usr/include/freetype2;-I/usr/include/libpng16
+SDL2_TTF_CFLAGS_I:INTERNAL=
+SDL2_TTF_CFLAGS_OTHER:INTERNAL=-D_GNU_SOURCE=1;-D_REENTRANT;-pthread
+SDL2_TTF_FOUND:INTERNAL=1
+SDL2_TTF_INCLUDEDIR:INTERNAL=/usr/include
+SDL2_TTF_INCLUDE_DIRS:INTERNAL=/usr/include/SDL2;/usr/include;/usr/include/harfbuzz;/usr/include/glib-2.0;/usr/lib/glib-2.0/include;/usr/include/sysprof-6;/usr/include/freetype2;/usr/include/libpng16
+SDL2_TTF_LDFLAGS:INTERNAL=-L/usr/lib;-lSDL2_ttf;-lSDL2
+SDL2_TTF_LDFLAGS_OTHER:INTERNAL=
+SDL2_TTF_LIBDIR:INTERNAL=/usr/lib
+SDL2_TTF_LIBRARIES:INTERNAL=SDL2_ttf;SDL2
+SDL2_TTF_LIBRARY_DIRS:INTERNAL=/usr/lib
+SDL2_TTF_LIBS:INTERNAL=
+SDL2_TTF_LIBS_L:INTERNAL=
+SDL2_TTF_LIBS_OTHER:INTERNAL=
+SDL2_TTF_LIBS_PATHS:INTERNAL=
+SDL2_TTF_MODULE_NAME:INTERNAL=SDL2_ttf
+SDL2_TTF_PREFIX:INTERNAL=/usr
+SDL2_TTF_SDL2_ttf_INCLUDEDIR:INTERNAL=
+SDL2_TTF_SDL2_ttf_LIBDIR:INTERNAL=
+SDL2_TTF_SDL2_ttf_PREFIX:INTERNAL=
+SDL2_TTF_SDL2_ttf_VERSION:INTERNAL=
+SDL2_TTF_STATIC_CFLAGS:INTERNAL=-I/usr/include/SDL2;-I/usr/include;-D_GNU_SOURCE=1;-D_REENTRANT;-I/usr/include/harfbuzz;-I/usr/include/glib-2.0;-I/usr/lib/glib-2.0/include;-I/usr/include/sysprof-6;-pthread;-I/usr/include/freetype2;-I/usr/include/libpng16
+SDL2_TTF_STATIC_CFLAGS_I:INTERNAL=
+SDL2_TTF_STATIC_CFLAGS_OTHER:INTERNAL=-D_GNU_SOURCE=1;-D_REENTRANT;-pthread
+SDL2_TTF_STATIC_INCLUDE_DIRS:INTERNAL=/usr/include/SDL2;/usr/include;/usr/include/harfbuzz;/usr/include/glib-2.0;/usr/lib/glib-2.0/include;/usr/include/sysprof-6;/usr/include/freetype2;/usr/include/libpng16
+SDL2_TTF_STATIC_LDFLAGS:INTERNAL=-L/usr/lib;-lSDL2_ttf;-lSDL2;-lharfbuzz;-pthread;-lm;-lglib-2.0;-latomic;-lm;-lsysprof-capture-4;-Wl,-z,nodelete;-pthread;-lpcre2-8;-pthread;-lpthread;-lgraphite2;-lfreetype;-ldl;-lbz2;-lpng16;-lm;-lm;-lz;-lbrotlidec;-lbrotlicommon
+SDL2_TTF_STATIC_LDFLAGS_OTHER:INTERNAL=-pthread;-Wl,-z,nodelete;-pthread;-pthread
+SDL2_TTF_STATIC_LIBDIR:INTERNAL=
+SDL2_TTF_STATIC_LIBRARIES:INTERNAL=SDL2_ttf;SDL2;harfbuzz;m;glib-2.0;atomic;m;sysprof-capture-4;pcre2-8;pthread;graphite2;freetype;dl;bz2;png16;m;m;z;brotlidec;brotlicommon
+SDL2_TTF_STATIC_LIBRARY_DIRS:INTERNAL=/usr/lib
+SDL2_TTF_STATIC_LIBS:INTERNAL=
+SDL2_TTF_STATIC_LIBS_L:INTERNAL=
+SDL2_TTF_STATIC_LIBS_OTHER:INTERNAL=
+SDL2_TTF_STATIC_LIBS_PATHS:INTERNAL=
+SDL2_TTF_VERSION:INTERNAL=2.24.0
+SDL2_TTF_sdl2_ttf_INCLUDEDIR:INTERNAL=
+SDL2_TTF_sdl2_ttf_LIBDIR:INTERNAL=
+SDL2_TTF_sdl2_ttf_PREFIX:INTERNAL=
+SDL2_TTF_sdl2_ttf_VERSION:INTERNAL=
 SDL2_VERSION:INTERNAL=2.32.74
 SDL2_sdl2_INCLUDEDIR:INTERNAL=
 SDL2_sdl2_LIBDIR:INTERNAL=
 SDL2_sdl2_PREFIX:INTERNAL=
 SDL2_sdl2_VERSION:INTERNAL=
 __pkg_config_arguments_SDL2:INTERNAL=REQUIRED;IMPORTED_TARGET;sdl2
+__pkg_config_arguments_SDL2_TTF:INTERNAL=REQUIRED;IMPORTED_TARGET;SDL2_ttf
 __pkg_config_checked_SDL2:INTERNAL=1
+__pkg_config_checked_SDL2_TTF:INTERNAL=1
 //ADVANCED property for variable: pkgcfg_lib_SDL2_SDL2
 pkgcfg_lib_SDL2_SDL2-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: pkgcfg_lib_SDL2_TTF_SDL2
+pkgcfg_lib_SDL2_TTF_SDL2-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: pkgcfg_lib_SDL2_TTF_SDL2_ttf
+pkgcfg_lib_SDL2_TTF_SDL2_ttf-ADVANCED:INTERNAL=1
 prefix_result:INTERNAL=/usr/lib
 

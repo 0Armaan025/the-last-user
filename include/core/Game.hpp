@@ -5,6 +5,7 @@
 #include "../../include/world/World.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
+#include <SDL2/SDL_ttf.h>
 #include <iostream>
 
 class Game {
@@ -33,6 +34,8 @@ public:
   void drawGrid();
 
   bool isRunning() const;
+  bool nearComputer = false;
+  bool computerInteracted = false;
 
 private:
   int screenWidth, screenHeight;
@@ -42,10 +45,9 @@ private:
 
   SDL_Renderer *renderer = nullptr;
   SDL_Window *window = nullptr;
+  // finally text work
+
+  TTF_Font *font = nullptr;
+
+  void drawInteractionPrompt();
 };
-
-
-
-
-
-
