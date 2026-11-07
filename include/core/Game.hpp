@@ -48,6 +48,7 @@ private:
   // finally text work
 
   TTF_Font *font = nullptr;
+  // alright let's begin this now
 
   void drawInteractionPrompt();
   // alright
@@ -58,7 +59,9 @@ private:
 
   bool myComputerOpen = false;
 
+  bool driveOpen = false;
   void drawMyComputerWindow();
 
+  void drawDriveWindow();
   void drawWindowsXP();
 };

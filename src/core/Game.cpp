@@ -95,20 +95,22 @@ void Game::handleEvents() {
     if (e.type == SDL_KEYDOWN && !e.key.repeat) {
       if (xpDesktopActive) {
         if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
-          if (myComputerOpen) {
+          if (driveOpen) {
+            driveOpen = false;
+          } else if (myComputerOpen) {
             myComputerOpen = false;
-          } else {
-            xpDesktopActive = false;
           }
+        } else {
+          xpDesktopActive = false;
         }
       }
-
-      continue;
     }
 
-    if (e.key.keysym.scancode == SDL_SCANCODE_E && nearComputer) {
-      xpDesktopActive = true;
-    }
+    continue;
+  }
+
+  if (e.key.keysym.scancode == SDL_SCANCODE_E && nearComputer) {
+    xpDesktopActive = true;
   }
 
   if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT &&
@@ -118,12 +120,24 @@ void Game::handleEvents() {
 
     SDL_Point mousePosition{mouseX, mouseY};
 
-    if (myComputerOpen) {
+    if (driveOpen || myComputerOpen) {
       SDL_Rect closeButton{screenWidth - 65, 55, 25, 25};
 
       // checks if a point is inside a rect
       if (SDL_PointInRect(&mousePosition, &closeButton)) {
-        myComputerOpen = false;
+        if (driveOpen) {
+          driveOpen = false;
+        } else {
+
+          myComputerOpen = false;
+        }
+      }
+
+      else if (myComputerOpen && !driveOpen) {
+        SDL_Rect driveButton{135, 120, 250, 60};
+        if (SDL_PointInRect(&mousePosition, &driveButton)) {
+          driveOpen = true;
+        }
       }
     }
 
@@ -136,7 +150,6 @@ void Game::handleEvents() {
     }
   }
 }
-
 void Game::update(float deltaTime) {
   // handle Input
   // and update player or something
@@ -260,8 +273,8 @@ void Game::drawInteractionPrompt() {
   // i wanna mkae it look a lil better, so i'll add a cool border
 
   SDL_SetRenderDrawColor(renderer, 110, 135, 112, 225);
-  // LESSON 04: rememgber armaan, we ain't using SDL_RenderFillRect her, we will
-  // use RenderDrawRect for the bordr
+  // LESSON 04: rememgber armaan, we ain't using SDL_RenderFillRect her, we
+  // will use RenderDrawRect for the bordr
 
   SDL_RenderDrawRect(renderer, &promptPanel);
   ;
@@ -377,6 +390,10 @@ void Game::drawWindowsXP() {
 
   if (myComputerOpen) {
     drawMyComputerWindow();
+
+    if (driveOpen) {
+      drawDriveWindow();
+    }
   }
 }
 
@@ -446,6 +463,33 @@ void Game::drawMyComputerWindow() {
   // uhm so uhh after this we just need a text and convert it into texture and
   // stuff, we need C: first
 
+  SDL_Rect driveIcon{contentArea.x + 20, contentArea.y + 20, 45, 35};
+
+  SDL_SetRenderDrawColor(renderer, 90, 100, 115, 255);
+  SDL_RenderFillRect(renderer, &driveIcon);
+
+  SDL_SetRenderDrawColor(renderer, 180, 190, 205, 255);
+  SDL_RenderDrawRect(renderer, &driveIcon);
+
+  SDL_Surface *driveSurface =
+      TTF_RenderUTF8_Blended(font, "C:", {30, 30, 30, 255});
+
+  if (driveSurface) {
+    SDL_Texture *driveTexture =
+        SDL_CreateTextureFromSurface(renderer, driveSurface);
+
+    if (driveTexture) {
+      SDL_Rect dest{contentArea.x + 30, contentArea.y + 25, driveSurface->w,
+                    driveSurface->h};
+
+      SDL_RenderCopy(renderer, driveTexture, nullptr, &dest);
+      SDL_DestroyTexture(driveTexture);
+    }
+
+    SDL_FreeSurface(driveSurface);
+  }
+
+  // update ^
   SDL_Color textColor{30, 30, 30, 255};
 
   SDL_Surface *contentSurface =
@@ -456,7 +500,8 @@ void Game::drawMyComputerWindow() {
         SDL_CreateTextureFromSurface(renderer, contentSurface);
 
     if (contentTexture) {
-      SDL_Rect destination{contentArea.x + 20, contentArea.y + 20,
+      // man i really need hot reload or something, testing these
+      SDL_Rect destination{contentArea.x + 80, contentArea.y + 30,
                            contentSurface->w, contentSurface->h};
 
       SDL_RenderCopy(renderer, contentTexture, nullptr, &destination);
@@ -465,5 +510,103 @@ void Game::drawMyComputerWindow() {
     }
 
     SDL_FreeSurface(contentSurface);
+  }
+}
+
+// now the drive window time
+
+void Game::drawDriveWindow() {
+  SDL_Rect windowRect{100, 55, screenWidth - 200, screenHeight - 110};
+
+  SDL_SetRenderDrawColor(renderer, 230, 230, 220, 255);
+  SDL_RenderFillRect(renderer, &windowRect);
+
+  // title bar
+
+  SDL_Rect titleBar{windowRect.x, windowRect.y, windowRect.w, 32};
+
+  SDL_SetRenderDrawColor(renderer, 20, 75, 155, 255);
+  SDL_RenderFillRect(renderer, &titleBar);
+
+  // alright
+
+  // title text
+
+  SDL_Surface *surface =
+      TTF_RenderUTF8_Blended(font, "Local Disk (C:)", {255, 255, 255, 255});
+  // i should really make a white color global variable
+
+  if (surface) {
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    if (texture) {
+      SDL_Rect destination{titleBar.x + 10, titleBar.y + 7, surface->w,
+                           surface->h};
+
+      SDL_RenderCopy(renderer, texture, nullptr, &destination);
+
+      SDL_DestroyTexture(texture);
+    }
+
+    SDL_FreeSurface(surface);
+  }
+
+  // close btn here
+  // i shoud just have a helper function as a compoent or something
+
+  SDL_Rect closeBtn{screenWidth - 65, 55, 25, 25};
+
+  SDL_SetRenderDrawColor(renderer, 190, 55, 45, 255);
+  SDL_RenderFillRect(renderer, &closeBtn);
+
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+  // white should def. help lol
+
+  SDL_RenderDrawLine(renderer, closeBtn.x + 7, closeBtn.y + 7, closeBtn.x + 18,
+                     closeBtn.y + 18);
+
+  SDL_RenderDrawLine(renderer, closeBtn.x + 18, closeBtn.y + 7, closeBtn.x + 7,
+                     closeBtn.y + 18);
+
+  // again, the content
+
+  SDL_Rect content{windowRect.x + 15, windowRect.y + 45, windowRect.w - 30,
+                   windowRect.h - 60};
+
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+  SDL_RenderFillRect(renderer, &content);
+
+  // SO FOR MY IDEA TO FETCH INFO FROM THE FOLDERS/FILES, we gonna need some
+
+  const char *folders[] = {"Documents and settings", "Program files", "WINDOWS",
+                           "Users", "System vol info"};
+
+  int y = content.y + 20;
+
+  for (const char *folder : folders) {
+    SDL_Rect folderIcon{content.x + 20, y, 28, 22};
+    SDL_SetRenderDrawColor(renderer, 220, 180, 65, 255);
+    SDL_RenderFillRect(renderer, &folderIcon);
+
+    SDL_Surface *folderSurface =
+        TTF_RenderUTF8_Blended(font, folder, {35, 35, 35, 255});
+
+    if (folderSurface) {
+      SDL_Texture *folderTexture =
+          SDL_CreateTextureFromSurface(renderer, folderSurface);
+
+      if (folderTexture) {
+        SDL_Rect destination{content.x + 65, y + 2, folderSurface->w,
+                             folderSurface->h};
+
+        SDL_RenderCopy(renderer, folderTexture, nullptr, &destination);
+
+        SDL_DestroyTexture(folderTexture);
+      }
+
+      SDL_FreeSurface(folderSurface);
+    }
+
+    y += 42;
   }
 }
