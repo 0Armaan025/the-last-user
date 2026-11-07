@@ -12,6 +12,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/armaan025/Desktop/ARMAAN/Coding/projects/the-last-user/src/core/Game.cpp" "CMakeFiles/the-last-user.dir/src/core/Game.cpp.o" "gcc" "CMakeFiles/the-last-user.dir/src/core/Game.cpp.o.d"
   "/home/armaan025/Desktop/ARMAAN/Coding/projects/the-last-user/src/core/Player.cpp" "CMakeFiles/the-last-user.dir/src/core/Player.cpp.o" "gcc" "CMakeFiles/the-last-user.dir/src/core/Player.cpp.o.d"
   "/home/armaan025/Desktop/ARMAAN/Coding/projects/the-last-user/src/main.cpp" "CMakeFiles/the-last-user.dir/src/main.cpp.o" "gcc" "CMakeFiles/the-last-user.dir/src/main.cpp.o.d"
+  "/home/armaan025/Desktop/ARMAAN/Coding/projects/the-last-user/src/world/Telephone.cpp" "CMakeFiles/the-last-user.dir/src/world/Telephone.cpp.o" "gcc" "CMakeFiles/the-last-user.dir/src/world/Telephone.cpp.o.d"
   "/home/armaan025/Desktop/ARMAAN/Coding/projects/the-last-user/src/world/World.cpp" "CMakeFiles/the-last-user.dir/src/world/World.cpp.o" "gcc" "CMakeFiles/the-last-user.dir/src/world/World.cpp.o.d"
   "" "bin/the-last-user" "gcc" "CMakeFiles/the-last-user.dir/link.d"
   )

@@ -133,6 +133,20 @@ void Game::handleEvents() {
     // Keyboard input
     if (e.type == SDL_KEYDOWN && !e.key.repeat) {
       if (xpDesktopActive) {
+
+        if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE &&
+            telephoneMessageOpen) {
+          telephoneMessageOpen = false;
+        }
+
+        if (e.key.keysym.scancode == SDL_SCANCODE_E) {
+          if (telephone.isNear()) {
+            telephoneMessageOpen = false;
+          } else if (nearComputer) {
+            xpDesktopActive = true;
+          }
+        }
+
         if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
           if (openedFile >= 0) {
             openedFile = -1;
@@ -289,11 +303,16 @@ void Game::update(float deltaTime) {
     return;
   }
 
+  if (telephoneMessageOpen) {
+    return;
+  }
+
   player.handleInput();
   std::vector<SDL_Rect> obstacles = world.getSkeletonBounds();
   obstacles.push_back(world.getComputerBounds());
   player.update(deltaTime, obstacles);
   player.constrainToWorld(2400, 1600);
+  telephone.update(player.getCenterX(), player.getCenterY());
 
   SDL_Rect computer = world.getComputerBounds();
 
@@ -341,6 +360,7 @@ void Game::draw() {
     return;
   }
   world.draw(renderer, camera);
+  telephone.render(renderer, camera);
   SDL_Rect screenPlayer = camera.apply(player.getBounds());
 
   SDL_SetRenderDrawColor(renderer, 180, 100, 50, 255);
@@ -348,6 +368,9 @@ void Game::draw() {
   SDL_RenderFillRect(renderer, &screenPlayer);
   drawAtmosphere();
   drawInteractionPrompt();
+  if (telephoneMessageOpen) {
+    drawTelephoneMessage();
+  }
 
   SDL_RenderPresent(renderer);
 }
@@ -392,7 +415,7 @@ void Game::drawGrid() {
 }
 
 void Game::drawInteractionPrompt() {
-  if (!nearComputer) {
+  if (!nearComputer && !telephone.isNear()) {
     return;
   }
 
@@ -415,7 +438,9 @@ void Game::drawInteractionPrompt() {
   ;
 
   const char *message =
-      computerInteracted ? "COMPUTER READY" : "Press [E] to interact";
+      telephone.isNear()
+          ? "Press [E] to answer"
+          : (computerInteracted ? "COMPUTER READY" : "Press [E] to interact");
 
   SDL_Color textColor{210, 220, 205, 255};
   SDL_Surface *surface = TTF_RenderUTF8_Blended(font, message, textColor);
@@ -431,7 +456,6 @@ void Game::drawInteractionPrompt() {
   SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
   if (!texture) {
-
     std::cout << "some error came: " << SDL_GetError() << "\n";
     SDL_FreeSurface(surface);
     return;
@@ -656,6 +680,7 @@ void Game::drawWindowsXP() {
                        screenHeight - 115);
 
     drawText("Turn off Computer", 25, screenHeight - 85, {150, 30, 30, 255});
+    // alright
   }
 }
 
@@ -963,4 +988,37 @@ void Game::drawTextFile() {
 
     SDL_FreeSurface(surface);
   }
+}
+
+void Game::drawTelephoneMessage() {
+  SDL_Rect panel{screenWidth / 2 - 280, screenHeight - 190, 560, 140};
+
+  SDL_SetRenderDrawColor(renderer, 12, 15, 14, 245);
+  SDL_RenderFillRect(renderer, &panel);
+
+  SDL_SetRenderDrawColor(renderer, 130, 115, 95, 255);
+  SDL_RenderDrawRect(renderer, &panel);
+
+  const char *message = "UNKNOWN CALLER\n\n"
+                        "You shouldn't have come back.\n"
+                        "The computer was never supposed to turn on.\n\n"
+                        "[ESC] Close";
+
+  SDL_Surface *surface =
+      TTF_RenderUTF8_Blended_Wrapped(font, message, {215, 210, 190, 255}, 510);
+
+  if (!surface) {
+    return;
+  }
+
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+  if (texture) {
+    SDL_Rect destination{panel.x + 25, panel.y + 15, surface->w, surface->h};
+
+    SDL_RenderCopy(renderer, texture, nullptr, &destination);
+    SDL_DestroyTexture(texture);
+  }
+
+  SDL_FreeSurface(surface);
 }

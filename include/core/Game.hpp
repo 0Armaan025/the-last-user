@@ -2,6 +2,7 @@
 
 #include "../../include/core/Camera.hpp"
 #include "../../include/core/Player.hpp"
+#include "../../include/world/Telephone.hpp"
 #include "../../include/world/World.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
@@ -36,6 +37,8 @@ public:
   bool isRunning() const;
   bool nearComputer = false;
   bool computerInteracted = false;
+
+  Telephone telephone;
 
 private:
   int screenWidth, screenHeight;
@@ -77,4 +80,8 @@ private:
   // atmopshere
 
   void drawAtmosphere();
+
+  bool telephoneMessageOpen = false;
+  void drawTelephoneMessage();
+  // alright
 };

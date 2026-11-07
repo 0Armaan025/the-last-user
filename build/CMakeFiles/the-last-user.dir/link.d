@@ -7,6 +7,7 @@ bin/the-last-user: \
   CMakeFiles/the-last-user.dir/src/core/Game.cpp.o \
   CMakeFiles/the-last-user.dir/src/core/Camera.cpp.o \
   CMakeFiles/the-last-user.dir/src/world/World.cpp.o \
+  CMakeFiles/the-last-user.dir/src/world/Telephone.cpp.o \
   /usr/lib/libSDL2_ttf.so \
   /usr/lib/libSDL2.so \
   /usr/lib/gcc/x86_64-pc-linux-gnu/16/libstdc++.so \
@@ -66,6 +67,8 @@ CMakeFiles/the-last-user.dir/src/core/Game.cpp.o:
 CMakeFiles/the-last-user.dir/src/core/Camera.cpp.o:
 
 CMakeFiles/the-last-user.dir/src/world/World.cpp.o:
+
+CMakeFiles/the-last-user.dir/src/world/Telephone.cpp.o:
 
 /usr/lib/libSDL2_ttf.so:
 

@@ -225,6 +225,30 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/the-last-user.dir/build.make CMakeFiles/the-last-user.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/world/Telephone.o: src/world/Telephone.cpp.o
+.PHONY : src/world/Telephone.o
+
+# target to build an object file
+src/world/Telephone.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/the-last-user.dir/build.make CMakeFiles/the-last-user.dir/src/world/Telephone.cpp.o
+.PHONY : src/world/Telephone.cpp.o
+
+src/world/Telephone.i: src/world/Telephone.cpp.i
+.PHONY : src/world/Telephone.i
+
+# target to preprocess a source file
+src/world/Telephone.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/the-last-user.dir/build.make CMakeFiles/the-last-user.dir/src/world/Telephone.cpp.i
+.PHONY : src/world/Telephone.cpp.i
+
+src/world/Telephone.s: src/world/Telephone.cpp.s
+.PHONY : src/world/Telephone.s
+
+# target to generate assembly for a file
+src/world/Telephone.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/the-last-user.dir/build.make CMakeFiles/the-last-user.dir/src/world/Telephone.cpp.s
+.PHONY : src/world/Telephone.cpp.s
+
 src/world/World.o: src/world/World.cpp.o
 .PHONY : src/world/World.o
 
@@ -270,6 +294,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/world/Telephone.o"
+	@echo "... src/world/Telephone.i"
+	@echo "... src/world/Telephone.s"
 	@echo "... src/world/World.o"
 	@echo "... src/world/World.i"
 	@echo "... src/world/World.s"

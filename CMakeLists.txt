@@ -20,6 +20,7 @@ add_executable(the-last-user
   src/core/Game.cpp
   src/core/Camera.cpp
   src/world/World.cpp
+  src/world/Telephone.cpp
 )
 
 target_include_directories(the-last-user
