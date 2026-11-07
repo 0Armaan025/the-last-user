@@ -1,6 +1,8 @@
 #include "../../include/core/Game.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_rect.h>
+#include <SDL2/SDL_render.h>
 #include <SDL2/SDL_surface.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_ttf.h>
@@ -91,25 +93,45 @@ void Game::handleEvents() {
     }
 
     if (e.type == SDL_KEYDOWN && !e.key.repeat) {
-      if (e.key.keysym.scancode == SDL_SCANCODE_E) {
-        if (nearComputer) {
-          computerInteracted = true;
+      if (xpDesktopActive) {
+        if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+          if (myComputerOpen) {
+            myComputerOpen = false;
+          } else {
+            xpDesktopActive = false;
+          }
         }
+      }
+
+      continue;
+    }
+
+    if (e.key.keysym.scancode == SDL_SCANCODE_E && nearComputer) {
+      xpDesktopActive = true;
+    }
+  }
+
+  if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT &&
+      xpDesktopActive) {
+    int mouseX = e.button.x;
+    int mouseY = e.button.y;
+
+    SDL_Point mousePosition{mouseX, mouseY};
+
+    if (myComputerOpen) {
+      SDL_Rect closeButton{screenWidth - 65, 55, 25, 25};
+
+      // checks if a point is inside a rect
+      if (SDL_PointInRect(&mousePosition, &closeButton)) {
+        myComputerOpen = false;
       }
     }
 
-    if (e.type == SDL_KEYDOWN && !e.key.repeat) {
-      if (xpDesktopActive) {
-        // this to close it
-        if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
-          xpDesktopActive = false;
-        }
+    else {
+      SDL_Rect myComputerIcon{25, 25, 60, 60};
 
-        continue;
-      }
-
-      if (e.key.keysym.scancode == SDL_SCANCODE_E && nearComputer) {
-        xpDesktopActive = true;
+      if (SDL_PointInRect(&mousePosition, &myComputerIcon)) {
+        myComputerOpen = true;
       }
     }
   }
@@ -343,10 +365,105 @@ void Game::drawWindowsXP() {
     SDL_SetRenderDrawColor(renderer, 120, 165, 210, 255);
 
     SDL_RenderDrawLine(renderer, 106, screenHeight - 36, 106, screenHeight - 4);
+    // alright let's move ahead now
 
     drawText("2:00 AM", screenWidth - 95, screenHeight - 28,
              {255, 255, 255, 255});
 
     SDL_SetRenderDrawColor(renderer, 120, 165, 210, 255);
+  }
+
+  // so yeah
+
+  if (myComputerOpen) {
+    drawMyComputerWindow();
+  }
+}
+
+// now time to draw my computer window
+
+void Game::drawMyComputerWindow() {
+  // firfst we ned to have a main window
+  //
+
+  SDL_Rect windowRect{100, 55, screenWidth - 200, screenHeight - 110};
+
+  // body
+
+  SDL_SetRenderDrawColor(renderer, 230, 230, 220, 255);
+  SDL_RenderFillRect(renderer, &windowRect);
+
+  SDL_Rect titleBar{windowRect.x, windowRect.y, windowRect.w, 32};
+  SDL_SetRenderDrawColor(renderer, 20, 75, 155, 255);
+
+  SDL_RenderFillRect(renderer, &titleBar);
+
+  // title
+
+  SDL_Surface *titleSurface =
+      TTF_RenderUTF8_Blended(font, "My Computer", {255, 255, 255, 255});
+
+  if (titleSurface) {
+    SDL_Texture *titleTexture =
+        SDL_CreateTextureFromSurface(renderer, titleSurface);
+
+    if (titleTexture) {
+      SDL_Rect destination{
+          titleBar.x + 10,
+          titleBar.y + 7,
+          titleSurface->w,
+          titleSurface->h,
+      };
+
+      SDL_RenderCopy(renderer, titleTexture, nullptr, &destination);
+      SDL_DestroyTexture(titleTexture);
+    }
+
+    SDL_FreeSurface(titleSurface);
+  }
+  // now the close button on teh topright ig
+
+  SDL_Rect closeBtn{screenWidth - 65, 55, 25, 25};
+
+  SDL_SetRenderDrawColor(renderer, 190, 55, 45, 255);
+  SDL_RenderFillRect(renderer, &closeBtn);
+
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+  SDL_RenderDrawLine(renderer, closeBtn.x + 7, closeBtn.y + 7, closeBtn.x + 18,
+                     closeBtn.y + 18);
+
+  SDL_RenderDrawLine(renderer, closeBtn.x + 18, closeBtn.y + 7, closeBtn.x + 7,
+                     closeBtn.y + 18);
+
+  // content
+
+  SDL_Rect contentArea = {windowRect.x + 15, windowRect.y + 45,
+                          windowRect.w - 30, windowRect.h - 60};
+
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+  SDL_RenderFillRect(renderer, &contentArea);
+  // uhm so uhh after this we just need a text and convert it into texture and
+  // stuff, we need C: first
+
+  SDL_Color textColor{30, 30, 30, 255};
+
+  SDL_Surface *contentSurface =
+      TTF_RenderUTF8_Blended(font, "Local Disk (C:)", textColor);
+
+  if (contentSurface) {
+    SDL_Texture *contentTexture =
+        SDL_CreateTextureFromSurface(renderer, contentSurface);
+
+    if (contentTexture) {
+      SDL_Rect destination{contentArea.x + 20, contentArea.y + 20,
+                           contentSurface->w, contentSurface->h};
+
+      SDL_RenderCopy(renderer, contentTexture, nullptr, &destination);
+
+      SDL_DestroyTexture(contentTexture);
+    }
+
+    SDL_FreeSurface(contentSurface);
   }
 }

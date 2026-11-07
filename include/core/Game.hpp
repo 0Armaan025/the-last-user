@@ -56,5 +56,9 @@ private:
 
   bool xpDesktopActive = false;
 
+  bool myComputerOpen = false;
+
+  void drawMyComputerWindow();
+
   void drawWindowsXP();
 };
