@@ -1,6 +1,7 @@
 #include "../../include/core/Game.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_pixels.h>
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_surface.h>
@@ -401,40 +402,69 @@ void Game::drawInteractionPrompt() {
 }
 
 void Game::drawAtmosphere() {
-  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+  static SDL_Texture *vignette = nullptr;
+  static int cachedWidth = 0;
+  static int cachedHeight = 0;
 
-  // let us make dark stuff
+  if (!vignette || cachedWidth != screenWidth || cachedHeight != screenHeight) {
 
-  for (int i = 0; i < 4; ++i) {
-    int thickness = (i + 1) * 28;
-    Uint8 alpha = static_cast<Uint8>(12 + i * 8);
+    if (vignette) {
+      SDL_DestroyTexture(vignette);
+      vignette = nullptr;
+    }
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
+    // btw this is my first time using it and chatgpt suggested to use it
+    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(
+        0, screenWidth, screenHeight, 32, SDL_PIXELFORMAT_RGBA32);
 
-    // top
+    if (!surface)
+      return;
 
-    SDL_Rect top{0, 0, screenWidth, thickness};
-    SDL_RenderFillRect(renderer, &top);
+    auto *pixels = static_cast<Uint32 *>(surface->pixels);
 
-    // bottom
+    float centerX = screenWidth / 2.0f;
+    float centerY = screenHeight / 2.0f;
 
-    SDL_Rect bottom{0, screenHeight - thickness, screenWidth, thickness};
+    float maxDistance = std::sqrt(centerX * centerX + centerY + centerY);
 
-    SDL_RenderFillRect(renderer, &bottom);
+    for (int y = 0; y < screenHeight; ++y) {
+      for (int x = 0; x < screenWidth; ++x) {
+        float dx = static_cast<float>(x) - centerX;
+        float dy = static_cast<float>(y) - centerY;
 
-    SDL_Rect left{0, 0, thickness, screenHeight};
-    SDL_RenderFillRect(renderer, &left);
+        float distance = std::sqrt(dx * dx + dy * dy);
+        float maxRadius = std::sqrt(centerX * centerX + centerY * centerY);
+        float normalizeDistance = distance / maxRadius;
+        float strength =
+            std::clamp((normalizeDistance - 0.35f) / 0.65f, 0.0f, 1.0f);
 
-    // right
+        strength = strength * strength * (3.0f - 2.0f * strength);
 
-    SDL_Rect right{screenWidth - thickness, 0, thickness, screenHeight};
+        // smoothstep
 
-    SDL_RenderFillRect(renderer, &right);
+        Uint8 alpha = static_cast<Uint8>(strength * 155.0f);
+
+        pixels[y * (surface->pitch / 4) + x] =
+            SDL_MapRGBA(surface->format, 0, 0, 0, alpha);
+      }
+    }
+
+    vignette = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+
+    if (!vignette) {
+      return;
+    }
+
+    SDL_SetTextureBlendMode(vignette, SDL_BLENDMODE_BLEND);
+
+    cachedWidth = screenWidth;
+    cachedHeight = screenHeight;
   }
 
-  // restoring the blend mode now
+  SDL_RenderCopy(renderer, vignette, nullptr, nullptr);
 
-  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+  // let us make dark stuff
 }
 
 void Game::drawWindowsXP() {
