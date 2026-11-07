@@ -45,7 +45,7 @@ const StoryFile systemFiles[] = {
                             "Check the date of the last transmission.\n"
                             "It was not sent from this town."}};
 
-const StoryFolder storyFolders[] = {{"Documents", systemFiles, 2}};
+const StoryFolder storyFolders[] = {{"Documents", systemFiles, 3}};
 
 Game::Game(int width, int height)
     : screenWidth(width), screenHeight(height), camera(width, height) {}
@@ -175,27 +175,34 @@ void Game::handleEvents() {
       if (SDL_PointInRect(&mouse, &closeButton)) {
         selectedFolder = -1;
       } else {
+        bool allCluesFound = fileRead[0] && fileRead[1];
+
+        int visibleRow = 0;
+
         for (int i = 0; i < storyFolders[selectedFolder].fileCount; ++i) {
+
           if (i == 2 && !allCluesFound) {
             continue;
           }
 
-          openedFile = i;
-
-          if (i < 2) {
-            fileRead[i] = true;
-          }
-          break;
-          SDL_Rect fileButton{135, 120 + i * 45, 300, 35};
+          SDL_Rect fileButton{135, 120 + visibleRow * 45, 300, 35};
 
           if (SDL_PointInRect(&mouse, &fileButton)) {
             openedFile = i;
-            fileRead[i] = true;
+
+            if (i < 2) {
+              fileRead[i] = true;
+            }
+
             break;
           }
+
+          ++visibleRow;
         }
       }
-    } else if (driveOpen) {
+    }
+
+    else if (driveOpen) {
       if (SDL_PointInRect(&mouse, &closeButton)) {
         driveOpen = false;
       } else {
@@ -524,7 +531,7 @@ void Game::drawMyComputerWindow() {
   }
   // now the close button on teh topright ig
 
-  SDL_Rect closeBtn{screenWidth - 65, 55, 25, 25};
+  SDL_Rect closeBtn{screenWidth - 135, 59, 25, 25};
 
   SDL_SetRenderDrawColor(renderer, 190, 55, 45, 255);
   SDL_RenderFillRect(renderer, &closeBtn);
@@ -668,7 +675,6 @@ void Game::drawDriveWindow() {
   int y = content.y + 20;
 
   SDL_Rect taskbar{0, screenHeight - 40, screenWidth, 40};
-
   SDL_SetRenderDrawColor(renderer, 35, 85, 155, 255);
   SDL_RenderFillRect(renderer, &taskbar);
 
