@@ -50,4 +50,11 @@ private:
   TTF_Font *font = nullptr;
 
   void drawInteractionPrompt();
+  // alright
+
+  // xp time
+
+  bool xpDesktopActive = false;
+
+  void drawWindowsXP();
 };

@@ -1,5 +1,7 @@
 #include "../../include/core/Game.hpp"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_surface.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_ttf.h>
 #include <algorithm>
@@ -95,12 +97,31 @@ void Game::handleEvents() {
         }
       }
     }
+
+    if (e.type == SDL_KEYDOWN && !e.key.repeat) {
+      if (xpDesktopActive) {
+        // this to close it
+        if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+          xpDesktopActive = false;
+        }
+
+        continue;
+      }
+
+      if (e.key.keysym.scancode == SDL_SCANCODE_E && nearComputer) {
+        xpDesktopActive = true;
+      }
+    }
   }
 }
 
 void Game::update(float deltaTime) {
   // handle Input
   // and update player or something
+
+  if (xpDesktopActive) {
+    return;
+  }
 
   player.handleInput();
   std::vector<SDL_Rect> obstacles = world.getSkeletonBounds();
@@ -148,6 +169,11 @@ void Game::draw() {
   // drawing not the actual player but the player with the new camera coords
   // let us draw the world before the player
 
+  if (xpDesktopActive) {
+    drawWindowsXP();
+    SDL_RenderPresent(renderer);
+    return;
+  }
   world.draw(renderer, camera);
   SDL_Rect screenPlayer = camera.apply(player.getBounds());
   drawInteractionPrompt();
@@ -240,6 +266,7 @@ void Game::drawInteractionPrompt() {
     std::cout << "some error came: " << SDL_GetError() << "\n";
   }
 
+  // alright
   // btw i used chatgpt for this thing here coz i couldnt' figure out the
   // correct coords
   SDL_Rect textRect{screenWidth / 2 - surface->w / 2,
@@ -249,4 +276,77 @@ void Game::drawInteractionPrompt() {
   SDL_RenderCopy(renderer, texture, nullptr, &textRect);
   SDL_DestroyTexture(texture);
   SDL_FreeSurface(surface);
+}
+
+void Game::drawWindowsXP() {
+  // ALR THIS NEEDS TO BE PRETTY COOL LOOKING, IM GONNA GO AHEAD AND FIRE UP
+  // EXCALIDRAW
+
+  SDL_SetRenderDrawColor(renderer, 58, 110, 165, 255);
+
+  SDL_RenderClear(renderer);
+
+  // labmda functinos are handy
+  auto drawText = [&](const char *message, int x, int y, SDL_Color color) {
+    SDL_Surface *surface = TTF_RenderUTF8_Blended(font, message, color);
+
+    if (!surface) {
+      return;
+    }
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (texture) {
+      SDL_Rect destination{x, y, surface->w, surface->h};
+
+      SDL_RenderCopy(renderer, texture, nullptr, &destination);
+
+      SDL_DestroyTexture(texture);
+    }
+
+    SDL_FreeSurface(surface);
+  };
+
+  // icons
+
+  struct DesktopIcon {
+    const char *name;
+    int x;
+    int y;
+    SDL_Color color;
+  };
+
+  // i need something that would look good for windows xp uhhh
+  const DesktopIcon icons[] = {
+      {"My computer", 25, 25, {120, 160, 190, 255}},
+      {"Recycle bin", 25, 105, {180, 190, 195, 255}},
+      {"Internet explorer", 25, 185, {40, 150, 220, 255}},
+      {"VLC (THE OG)", 25, 265, {50, 200, 100, 255}},
+
+      {"Documents", 25, 345, {220, 190, 100, 255}}};
+
+  // iteration
+
+  for (const DesktopIcon &icon : icons) {
+    SDL_Rect iconShape{icon.x + 12, icon.y, 32, 32};
+
+    SDL_SetRenderDrawColor(renderer, icon.color.r, icon.color.g, icon.color.b,
+                           icon.color.a);
+
+    SDL_RenderFillRect(renderer, &iconShape);
+
+    SDL_SetRenderDrawColor(renderer, 235, 240, 245, 255);
+    SDL_RenderDrawRect(renderer, &iconShape);
+
+    drawText(icon.name, icon.x, icon.y + 38, {255, 255, 255, 255});
+    // seperator
+
+    SDL_SetRenderDrawColor(renderer, 120, 165, 210, 255);
+
+    SDL_RenderDrawLine(renderer, 106, screenHeight - 36, 106, screenHeight - 4);
+
+    drawText("2:00 AM", screenWidth - 95, screenHeight - 28,
+             {255, 255, 255, 255});
+
+    SDL_SetRenderDrawColor(renderer, 120, 165, 210, 255);
+  }
 }
