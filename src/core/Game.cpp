@@ -71,7 +71,9 @@ void Game::update(float deltaTime) {
   // and update player or something
 
   player.handleInput();
-  player.update(deltaTime, world.getComputerBounds());
+  std::vector<SDL_Rect> obstacles = world.getSkeletonBounds();
+  obstacles.push_back(world.getComputerBounds());
+  player.update(deltaTime, obstacles);
   player.constrainToWorld(2400, 1600);
 
   camera.follow(player.getCenterX(), player.getCenterY(), deltaTime);

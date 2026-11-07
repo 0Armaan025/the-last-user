@@ -14,7 +14,7 @@ void Player::draw(SDL_Renderer *renderer) {
   SDL_RenderFillRect(renderer, &bounds);
 }
 
-void Player::update(float deltaTime, const SDL_Rect &obstacle) {
+void Player::update(float deltaTime, const std::vector<SDL_Rect> &obstacles) {
   // this logic is messed up for collision, so gonna rewrite it
   float magnitude =
       std::sqrt((velocityX * velocityX) + (velocityY * velocityY));
@@ -35,12 +35,24 @@ void Player::update(float deltaTime, const SDL_Rect &obstacle) {
   float dy = moveY * speed * deltaTime;
 
   float nextX = x + dx;
+  // btw this is called predictive collision detection, lesson 03
 
   SDL_Rect nextBounds = bounds;
   nextBounds.x = static_cast<int>(nextX);
-  // for future me: use this to detect intersection
+  // we create a temp rectangle (for the new pos and check if it will overlap
+  // with other rect) for future me: use this to detect intersection
 
-  if (!SDL_HasIntersection(&nextBounds, &obstacle)) {
+  bool blockedX = false;
+
+  // gonna just iterate now
+  for (const SDL_Rect &obstacle : obstacles) {
+    if (SDL_HasIntersection(&nextBounds, &obstacle)) {
+      blockedX = true;
+      break;
+    }
+  }
+
+  if (!blockedX) {
     x = nextX;
     bounds.x = static_cast<int>(x);
   }
@@ -53,7 +65,16 @@ void Player::update(float deltaTime, const SDL_Rect &obstacle) {
   nextBounds = bounds;
   nextBounds.y = static_cast<int>(nextY);
 
-  if (!SDL_HasIntersection(&nextBounds, &obstacle)) {
+  bool blockedY = false;
+
+  for (const SDL_Rect &obstacle : obstacles) {
+    if (SDL_HasIntersection(&nextBounds, &obstacle)) {
+      blockedY = true;
+      break;
+    }
+  }
+
+  if (!blockedY) {
     y = nextY;
     bounds.y = static_cast<int>(y);
   }

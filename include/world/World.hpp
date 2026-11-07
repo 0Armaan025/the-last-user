@@ -41,6 +41,6 @@ private:
 
   // random coords
 
-  std::vector<SDL_Rect> skeletonBuonds{
+  std::vector<SDL_Point> skeletonPositions{
       {900, 700}, {1450, 700}, {850, 1000}, {1500, 1050}, {1200, 550}};
 };

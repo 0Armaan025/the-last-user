@@ -1,4 +1,5 @@
 #include "../../include/world/World.hpp"
+#include <SDL2/SDL_rect.h>
 
 void World::draw(SDL_Renderer *renderer, const Camera &camera) {
   constexpr int TILE_SIZE = 96;
@@ -45,7 +46,7 @@ void World::draw(SDL_Renderer *renderer, const Camera &camera) {
 
   drawComputer(renderer, camera);
 
-  for (const SDL_Point &pos : skeletonBuonds) {
+  for (const SDL_Point &pos : skeletonPositions) {
     drawSkeletons(renderer, camera, pos);
   }
 }
@@ -119,7 +120,15 @@ void World::drawSkeletons(SDL_Renderer *renderer, const Camera &camera,
 }
 
 SDL_Rect World::getComputerBounds() const { return computerBounds; }
+// we are basically creating collision rects for eveyr skeleton
 
 std::vector<SDL_Rect> World::getSkeletonBounds() const {
-  return skeletonBuonds;
+  std::vector<SDL_Rect> bounds;
+  bounds.reserve(skeletonPositions.size());
+
+  for (const SDL_Point &pos : skeletonPositions) {
+    bounds.push_back({pos.x + 20, pos.y, 40, 85});
+  }
+
+  return bounds;
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL.h>
+#include <vector>
 
 #include <iostream>
 
@@ -11,7 +12,8 @@ public:
   void handleInput();
   void draw(SDL_Renderer *renderer);
 
-  void update(float deltaTime, const SDL_Rect &obstacle);
+  // rn it'st just one obstacle, let's add more
+  void update(float deltaTime, const std::vector<SDL_Rect> &obstacles);
 
   float getCenterX() const;
   float getCenterY() const;
@@ -28,5 +30,5 @@ private:
   float velocityY = 0.0f;
   float speed = 200.0f;
 
-  SDL_Rect bounds{1775, 1150, 50, 50};
+  SDL_Rect bounds{1175, 1350, 50, 50};
 };
