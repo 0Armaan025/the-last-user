@@ -59,6 +59,7 @@ private:
 
   bool myComputerOpen = false;
 
+  bool fileRead[3]{false, false, false};
   bool driveOpen = false;
 
   int selectedFolder = -1;

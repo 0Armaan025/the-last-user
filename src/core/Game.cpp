@@ -29,11 +29,21 @@ const StoryFile systemFiles[] = {
                    "The network has gone silent.\n"
                    "No response from outside stations.\n"
                    "I am beginning to think we are the only ones left."},
-    {"last_message.txt", "PERSONAL MESSAGE \n"
-                         "If someone finds this computer...\n"
-                         "Do not assume the town is empty.\n\n"
-                         "I heard the telephoner ring yesterday"
-                         "There is no telephone line connected.\n"}};
+    {
+        "last_message.txt",
+        "PERSONAL MESSAGE \n"
+        "If someone finds this computer...\n"
+        "Do not assume the town is empty.\n\n"
+        "I heard the telephoner ring yesterday"
+        "There is no telephone line connected.\n",
+    },
+    {
+
+        "unknown_file.txt", "RECOVERED DATA\n\n"
+                            "You found the first two msges.\n"
+                            "That means someone is still searching...\n\n"
+                            "Check the date of the last transmission.\n"
+                            "It was not sent from this town."}};
 
 const StoryFolder storyFolders[] = {{"Documents", systemFiles, 2}};
 
@@ -111,13 +121,15 @@ bool Game::init() {
 bool Game::isRunning() const { return running; }
 
 void Game::handleEvents() {
-
   SDL_Event e;
+
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
       running = false;
+      continue;
     }
 
+    // Keyboard input
     if (e.type == SDL_KEYDOWN && !e.key.repeat) {
       if (xpDesktopActive) {
         if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
@@ -133,49 +145,58 @@ void Game::handleEvents() {
             xpDesktopActive = false;
           }
         }
+
+        continue;
       }
+
+      if (e.key.keysym.scancode == SDL_SCANCODE_E && nearComputer) {
+        xpDesktopActive = true;
+      }
+
+      continue;
     }
 
-    continue;
-  }
+    // Mouse input
+    if (e.type != SDL_MOUSEBUTTONDOWN || e.button.button != SDL_BUTTON_LEFT ||
+        !xpDesktopActive) {
+      continue;
+    }
 
-  if (e.key.keysym.scancode == SDL_SCANCODE_E && nearComputer) {
-    xpDesktopActive = true;
-  }
+    SDL_Point mouse{e.button.x, e.button.y};
 
-  if (xpDesktopActive && e.type == SDL_MOUSEBUTTONDOWN &&
-      e.button.button == SDL_BUTTON_LEFT) {
-    int mouseX = e.button.x;
-    int mouseY = e.button.y;
+    SDL_Rect closeButton{screenWidth - 65, 55, 25, 25};
 
-    SDL_Point mousePosition{mouseX, mouseY};
-    SDL_Point mouse{mouseX, mouseY};
-
-    SDL_Rect closeBtn{screenWidth - 65, 55, 25, 25};
-
+    bool allCluesFound = fileRead[0] && fileRead[1];
     if (openedFile >= 0) {
-      if (SDL_PointInRect(&mouse, &closeBtn)) {
+      if (SDL_PointInRect(&mouse, &closeButton)) {
         openedFile = -1;
       }
     } else if (selectedFolder >= 0) {
-      // close folder
-
-      if (SDL_PointInRect(&mouse, &closeBtn)) {
+      if (SDL_PointInRect(&mouse, &closeButton)) {
         selectedFolder = -1;
-      }
+      } else {
+        for (int i = 0; i < storyFolders[selectedFolder].fileCount; ++i) {
+          if (i == 2 && !allCluesFound) {
+            continue;
+          }
 
-      else {
-        for (int i = 0; i < storyFolders[0].fileCount; ++i) {
+          openedFile = i;
+
+          if (i < 2) {
+            fileRead[i] = true;
+          }
+          break;
           SDL_Rect fileButton{135, 120 + i * 45, 300, 35};
 
           if (SDL_PointInRect(&mouse, &fileButton)) {
             openedFile = i;
+            fileRead[i] = true;
             break;
           }
         }
       }
     } else if (driveOpen) {
-      if (SDL_PointInRect(&mouse, &closeBtn)) {
+      if (SDL_PointInRect(&mouse, &closeButton)) {
         driveOpen = false;
       } else {
         SDL_Rect folderButton{135, 120, 300, 35};
@@ -185,7 +206,7 @@ void Game::handleEvents() {
         }
       }
     } else if (myComputerOpen) {
-      if (SDL_PointInRect(&mouse, &closeBtn)) {
+      if (SDL_PointInRect(&mouse, &closeButton)) {
         myComputerOpen = false;
       } else {
         SDL_Rect driveButton{135, 120, 250, 60};
@@ -198,40 +219,6 @@ void Game::handleEvents() {
       SDL_Rect icon{25, 25, 60, 60};
 
       if (SDL_PointInRect(&mouse, &icon)) {
-        myComputerOpen = true;
-      }
-    }
-
-    if (driveOpen || myComputerOpen) {
-      SDL_Rect closeButton{screenWidth - 65, 55, 25, 25};
-
-      // checks if a point is inside a rect
-      if (SDL_PointInRect(&mousePosition, &closeButton)) {
-        if (driveOpen) {
-          driveOpen = false;
-          SDL_Rect documentsFolder{135, 120, 300, 35};
-
-          if (SDL_PointInRect(&mousePosition, &documentsFolder)) {
-            selectedFolder = 0;
-          }
-        } else {
-
-          myComputerOpen = false;
-        }
-      }
-
-      else if (myComputerOpen && !driveOpen) {
-        SDL_Rect driveButton{135, 120, 250, 60};
-        if (SDL_PointInRect(&mousePosition, &driveButton)) {
-          driveOpen = true;
-        }
-      }
-    }
-
-    else {
-      SDL_Rect myComputerIcon{25, 25, 60, 60};
-
-      if (SDL_PointInRect(&mousePosition, &myComputerIcon)) {
         myComputerOpen = true;
       }
     }
@@ -383,9 +370,11 @@ void Game::drawInteractionPrompt() {
   SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
   if (!texture) {
-    SDL_FreeSurface(surface);
-    // some error
+
     std::cout << "some error came: " << SDL_GetError() << "\n";
+    SDL_FreeSurface(surface);
+    return;
+    // some error
   }
 
   // alright
@@ -464,14 +453,14 @@ void Game::drawWindowsXP() {
 
     SDL_SetRenderDrawColor(renderer, 120, 165, 210, 255);
 
-    SDL_RenderDrawLine(renderer, 106, screenHeight - 36, 106, screenHeight - 4);
-    // alright let's move ahead now
-
-    drawText("2:00 AM", screenWidth - 95, screenHeight - 28,
-             {255, 255, 255, 255});
-
     SDL_SetRenderDrawColor(renderer, 120, 165, 210, 255);
   }
+
+  SDL_RenderDrawLine(renderer, 106, screenHeight - 36, 106, screenHeight - 4);
+  // alright let's move ahead now
+
+  drawText("2:00 AM", screenWidth - 95, screenHeight - 28,
+           {255, 255, 255, 255});
 
   // so yeah
 
@@ -678,6 +667,11 @@ void Game::drawDriveWindow() {
 
   int y = content.y + 20;
 
+  SDL_Rect taskbar{0, screenHeight - 40, screenWidth, 40};
+
+  SDL_SetRenderDrawColor(renderer, 35, 85, 155, 255);
+  SDL_RenderFillRect(renderer, &taskbar);
+
   for (const char *folder : folders) {
     SDL_Rect folderIcon{content.x + 20, y, 28, 22};
     SDL_SetRenderDrawColor(renderer, 220, 180, 65, 255);
@@ -759,6 +753,13 @@ void Game::drawFolderWindow() {
 
     SDL_FreeSurface(fileSurface);
     y += 45;
+
+    if (fileRead[i]) {
+      SDL_Rect readIndicator{screenWidth - 155, y + 5, 12, 12};
+
+      SDL_SetRenderDrawColor(renderer, 65, 160, 85, 255);
+      SDL_RenderFillRect(renderer, &readIndicator);
+    }
   }
 }
 
