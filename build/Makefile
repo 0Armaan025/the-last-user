@@ -225,6 +225,30 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/the-last-user.dir/build.make CMakeFiles/the-last-user.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/world/Reaper.o: src/world/Reaper.cpp.o
+.PHONY : src/world/Reaper.o
+
+# target to build an object file
+src/world/Reaper.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/the-last-user.dir/build.make CMakeFiles/the-last-user.dir/src/world/Reaper.cpp.o
+.PHONY : src/world/Reaper.cpp.o
+
+src/world/Reaper.i: src/world/Reaper.cpp.i
+.PHONY : src/world/Reaper.i
+
+# target to preprocess a source file
+src/world/Reaper.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/the-last-user.dir/build.make CMakeFiles/the-last-user.dir/src/world/Reaper.cpp.i
+.PHONY : src/world/Reaper.cpp.i
+
+src/world/Reaper.s: src/world/Reaper.cpp.s
+.PHONY : src/world/Reaper.s
+
+# target to generate assembly for a file
+src/world/Reaper.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/the-last-user.dir/build.make CMakeFiles/the-last-user.dir/src/world/Reaper.cpp.s
+.PHONY : src/world/Reaper.cpp.s
+
 src/world/Telephone.o: src/world/Telephone.cpp.o
 .PHONY : src/world/Telephone.o
 
@@ -294,6 +318,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/world/Reaper.o"
+	@echo "... src/world/Reaper.i"
+	@echo "... src/world/Reaper.s"
 	@echo "... src/world/Telephone.o"
 	@echo "... src/world/Telephone.i"
 	@echo "... src/world/Telephone.s"

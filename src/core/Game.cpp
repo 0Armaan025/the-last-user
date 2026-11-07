@@ -149,7 +149,7 @@ void Game::handleEvents() {
     // Keyboard input
     if (e.type == SDL_KEYDOWN && !e.key.repeat) {
 
-      // Telephone dialogue takes priority
+      // Telephone dialogue gets priority
       if (telephoneMessageOpen) {
         if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
           telephoneMessageOpen = false;
@@ -158,7 +158,7 @@ void Game::handleEvents() {
         continue;
       }
 
-      // Windows XP desktop controls
+      // Windows XP controls
       if (xpDesktopActive) {
         if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
           if (openedFile >= 0) {
@@ -179,7 +179,6 @@ void Game::handleEvents() {
 
       // World interactions
       if (e.key.keysym.scancode == SDL_SCANCODE_E) {
-
         if (telephone.isNear()) {
           telephoneMessageOpen = true;
         } else if (nearComputer) {
@@ -188,7 +187,8 @@ void Game::handleEvents() {
       }
 
       continue;
-    } // Mouse input
+    }
+
     if (e.type != SDL_MOUSEBUTTONDOWN || e.button.button != SDL_BUTTON_LEFT ||
         !xpDesktopActive) {
       continue;
@@ -316,6 +316,8 @@ void Game::update(float deltaTime) {
   // handle Input
   // and update player or something
 
+  reaper.update(player.getCenterX(), player.getCenterY(),
+                fileRead[0] && fileRead[1], deltaTime);
   if (xpDesktopActive) {
     return;
   }
@@ -377,7 +379,9 @@ void Game::draw() {
     return;
   }
   world.draw(renderer, camera);
+
   telephone.render(renderer, camera);
+  reaper.render(renderer, camera);
   SDL_Rect screenPlayer = camera.apply(player.getBounds());
 
   SDL_SetRenderDrawColor(renderer, 180, 100, 50, 255);
@@ -1016,10 +1020,31 @@ void Game::drawTelephoneMessage() {
   SDL_SetRenderDrawColor(renderer, 130, 115, 95, 255);
   SDL_RenderDrawRect(renderer, &panel);
 
-  const char *message = "UNKNOWN CALLER\n\n"
-                        "You shouldn't have come back.\n"
-                        "The computer was never supposed to turn on.\n\n"
-                        "[ESC] Close";
+  const char *message = nullptr;
+
+  if (!fileRead[0 && !fileRead[1]]) {
+    message = "UNKNOWN CALLER\n\n"
+              "You shouldn't have come back.\n"
+              "The computer was never supposed to turn on.\n\n"
+              "[ESC] Close";
+  }
+
+  else if (fileRead[0] && !fileRead[1]) {
+    message = "UNKNOWN CALLER\n\n"
+              "You found the recovery log.\n"
+              "That wasn't meant for you.\n\n"
+              "Stop searching.\n\n"
+              "[ESC] Close";
+  }
+
+  else if (fileRead[0] && fileRead[1]) {
+    message = "UNKNOWN CALLER\n\n"
+              "SO you've read both messages.\n"
+              "Then you've probably noticed the date.\n\n"
+              "Look outside. Someone is waiting.\n\n"
+              "[ESC] Close";
+  }
+  // okay now time to add reaper
 
   SDL_Surface *surface =
       TTF_RenderUTF8_Blended_Wrapped(font, message, {215, 210, 190, 255}, 510);

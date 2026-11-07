@@ -24,6 +24,7 @@ add_executable(the-last-user
   src/core/Camera.cpp
   src/world/World.cpp
   src/world/Telephone.cpp
+  src/world/Reaper.cpp
 )
 
 target_include_directories(the-last-user

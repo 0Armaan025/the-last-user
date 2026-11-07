@@ -2,6 +2,7 @@
 
 #include "../../include/core/Camera.hpp"
 #include "../../include/core/Player.hpp"
+#include "../../include/world/Reaper.hpp"
 #include "../../include/world/Telephone.hpp"
 #include "../../include/world/World.hpp"
 #include <SDL2/SDL.h>
@@ -39,6 +40,7 @@ public:
   bool computerInteracted = false;
 
   Telephone telephone;
+  Reaper reaper;
 
 private:
   int screenWidth, screenHeight;
