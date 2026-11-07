@@ -177,6 +177,7 @@ bin/the-last-user: CMakeFiles/the-last-user.dir/src/world/Telephone.cpp.o
 bin/the-last-user: CMakeFiles/the-last-user.dir/build.make
 bin/the-last-user: CMakeFiles/the-last-user.dir/compiler_depend.ts
 bin/the-last-user: /usr/lib/libSDL2_ttf.so
+bin/the-last-user: /usr/lib/libSDL2_mixer.so
 bin/the-last-user: /usr/lib/libSDL2.so
 bin/the-last-user: CMakeFiles/the-last-user.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/armaan025/Desktop/ARMAAN/Coding/projects/the-last-user/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable bin/the-last-user"

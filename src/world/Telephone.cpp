@@ -1,6 +1,32 @@
 #include "../../include/world/Telephone.hpp";
+#include <SDL2/SDL_mixer.h>
+#include <iostream>
 
 #include <cmath>
+
+bool Telephone::loadRingSound(const char *path) {
+  ringSound = Mix_LoadWAV(path);
+
+  if (!ringSound) {
+    std::cout << "Telephone audo loadign failed: " << Mix_GetError() << "\n";
+
+    return false;
+  }
+
+  return true;
+}
+
+void Telephone::cleanup() {
+  if (ringChannel != -1) {
+    Mix_HaltChannel(ringChannel);
+    ringChannel = -1;
+  }
+
+  if (ringSound) {
+    Mix_FreeChunk(ringSound);
+    ringSound = nullptr;
+  }
+}
 
 void Telephone::update(float playerX, float playerY) {
   float centerX = bounds.x + bounds.w / 2.0f;
@@ -17,9 +43,24 @@ void Telephone::update(float playerX, float playerY) {
   // rings when approaching ig
 
   ringing = distance <= 260.0f && !near;
+
+  // start ringing
+
+  if (ringing && ringSound && ringChannel == -1) {
+    ringChannel = Mix_PlayChannel(-1, ringSound, -1);
+    if (ringChannel == -1) {
+      std::cout << "Telephone playback failed: " << Mix_GetError() << "\n";
+    }
+  }
+
+  if (!ringing && ringChannel != -1) {
+    Mix_HaltChannel(ringChannel);
+    ringChannel = -1;
+  }
 }
 
 void Telephone::render(SDL_Renderer *renderer, const Camera &camera) const {
+
   // base
 
   SDL_Rect base = camera.apply(bounds);
@@ -82,6 +123,7 @@ void Telephone::render(SDL_Renderer *renderer, const Camera &camera) const {
     }
   }
 }
+// alr
 
 bool Telephone::isNear() const { return near; }
 

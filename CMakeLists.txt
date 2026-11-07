@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.20)
 
 project(TheLastUser
@@ -11,8 +12,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(PkgConfig REQUIRED)
+
 pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
 pkg_check_modules(SDL2_TTF REQUIRED IMPORTED_TARGET SDL2_ttf)
+pkg_check_modules(SDL2_MIXER REQUIRED IMPORTED_TARGET SDL2_mixer)
 
 add_executable(the-last-user
   src/main.cpp
@@ -32,6 +35,7 @@ target_link_libraries(the-last-user
   PRIVATE
     PkgConfig::SDL2
     PkgConfig::SDL2_TTF
+    PkgConfig::SDL2_MIXER
 )
 
 target_compile_options(the-last-user PRIVATE
@@ -49,4 +53,3 @@ target_compile_definitions(the-last-user PRIVATE
 set_target_properties(the-last-user PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
-

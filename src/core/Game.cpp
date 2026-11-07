@@ -1,6 +1,7 @@
 #include "../../include/core/Game.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_pixels.h>
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
@@ -16,12 +17,14 @@ struct StoryFile {
   const char *name;
   const char *content;
 };
+// going ahead
 
 struct StoryFolder {
   const char *name;
   const StoryFile *files;
   int fileCount;
 };
+// alright
 
 const StoryFile systemFiles[] = {
     {"readme.txt", "SYSTEM RECOVERY LOG \n\n"
@@ -65,6 +68,8 @@ Game::~Game() {
     TTF_CloseFont(font);
     font = nullptr;
   }
+  telephone.cleanup();
+  Mix_CloseAudio();
   TTF_Quit();
   // should work ig
   SDL_Quit();
@@ -76,6 +81,17 @@ bool Game::init() {
     std::cout << "SDL ERROR: " << SDL_GetError() << std::endl;
 
     return false;
+  }
+
+  if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+    std::cout << "audio init faile: " << Mix_GetError() << "\n ";
+    return false;
+
+    return false;
+  }
+
+  if (!telephone.loadRingSound("assets/audio/telephone_ring.wav")) {
+    std::cout << "telephne is silent" << "\n";
   }
 
   SDL_Window *sdl_window = SDL_CreateWindow(
@@ -132,21 +148,18 @@ void Game::handleEvents() {
 
     // Keyboard input
     if (e.type == SDL_KEYDOWN && !e.key.repeat) {
-      if (xpDesktopActive) {
 
-        if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE &&
-            telephoneMessageOpen) {
+      // Telephone dialogue takes priority
+      if (telephoneMessageOpen) {
+        if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
           telephoneMessageOpen = false;
         }
 
-        if (e.key.keysym.scancode == SDL_SCANCODE_E) {
-          if (telephone.isNear()) {
-            telephoneMessageOpen = false;
-          } else if (nearComputer) {
-            xpDesktopActive = true;
-          }
-        }
+        continue;
+      }
 
+      // Windows XP desktop controls
+      if (xpDesktopActive) {
         if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
           if (openedFile >= 0) {
             openedFile = -1;
@@ -164,14 +177,18 @@ void Game::handleEvents() {
         continue;
       }
 
-      if (e.key.keysym.scancode == SDL_SCANCODE_E && nearComputer) {
-        xpDesktopActive = true;
+      // World interactions
+      if (e.key.keysym.scancode == SDL_SCANCODE_E) {
+
+        if (telephone.isNear()) {
+          telephoneMessageOpen = true;
+        } else if (nearComputer) {
+          xpDesktopActive = true;
+        }
       }
 
       continue;
-    }
-
-    // Mouse input
+    } // Mouse input
     if (e.type != SDL_MOUSEBUTTONDOWN || e.button.button != SDL_BUTTON_LEFT ||
         !xpDesktopActive) {
       continue;
@@ -1021,4 +1038,5 @@ void Game::drawTelephoneMessage() {
   }
 
   SDL_FreeSurface(surface);
+  // alright
 }
