@@ -121,13 +121,17 @@ void Game::handleEvents() {
     if (e.type == SDL_KEYDOWN && !e.key.repeat) {
       if (xpDesktopActive) {
         if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
-          if (driveOpen) {
+          if (openedFile >= 0) {
+            openedFile = -1;
+          } else if (selectedFolder >= 0) {
+            selectedFolder = -1;
+          } else if (driveOpen) {
             driveOpen = false;
           } else if (myComputerOpen) {
             myComputerOpen = false;
+          } else {
+            xpDesktopActive = false;
           }
-        } else {
-          xpDesktopActive = false;
         }
       }
     }
@@ -139,12 +143,64 @@ void Game::handleEvents() {
     xpDesktopActive = true;
   }
 
-  if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT &&
-      xpDesktopActive) {
+  if (xpDesktopActive && e.type == SDL_MOUSEBUTTONDOWN &&
+      e.button.button == SDL_BUTTON_LEFT) {
     int mouseX = e.button.x;
     int mouseY = e.button.y;
 
     SDL_Point mousePosition{mouseX, mouseY};
+    SDL_Point mouse{mouseX, mouseY};
+
+    SDL_Rect closeBtn{screenWidth - 65, 55, 25, 25};
+
+    if (openedFile >= 0) {
+      if (SDL_PointInRect(&mouse, &closeBtn)) {
+        openedFile = -1;
+      }
+    } else if (selectedFolder >= 0) {
+      // close folder
+
+      if (SDL_PointInRect(&mouse, &closeBtn)) {
+        selectedFolder = -1;
+      }
+
+      else {
+        for (int i = 0; i < storyFolders[0].fileCount; ++i) {
+          SDL_Rect fileButton{135, 120 + i * 45, 300, 35};
+
+          if (SDL_PointInRect(&mouse, &fileButton)) {
+            openedFile = i;
+            break;
+          }
+        }
+      }
+    } else if (driveOpen) {
+      if (SDL_PointInRect(&mouse, &closeBtn)) {
+        driveOpen = false;
+      } else {
+        SDL_Rect folderButton{135, 120, 300, 35};
+
+        if (SDL_PointInRect(&mouse, &folderButton)) {
+          selectedFolder = 0;
+        }
+      }
+    } else if (myComputerOpen) {
+      if (SDL_PointInRect(&mouse, &closeBtn)) {
+        myComputerOpen = false;
+      } else {
+        SDL_Rect driveButton{135, 120, 250, 60};
+
+        if (SDL_PointInRect(&mouse, &driveButton)) {
+          driveOpen = true;
+        }
+      }
+    } else {
+      SDL_Rect icon{25, 25, 60, 60};
+
+      if (SDL_PointInRect(&mouse, &icon)) {
+        myComputerOpen = true;
+      }
+    }
 
     if (driveOpen || myComputerOpen) {
       SDL_Rect closeButton{screenWidth - 65, 55, 25, 25};
