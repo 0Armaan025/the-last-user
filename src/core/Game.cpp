@@ -165,6 +165,55 @@ void Game::handleEvents() {
 
     SDL_Point mouse{e.button.x, e.button.y};
 
+    // here
+    SDL_Rect startButton{0, screenHeight - 40, 110, 40};
+
+    if (SDL_PointInRect(&mouse, &startButton)) {
+      startMenuOpen = !startMenuOpen;
+      continue;
+    }
+
+    if (startMenuOpen) {
+      SDL_Rect menu{0, screenHeight - 340, 270, 300};
+
+      if (SDL_PointInRect(&mouse, &menu)) {
+        // my computer
+
+        SDL_Rect computerOption{15, screenHeight - 290, 240, 45};
+
+        // docs
+
+        SDL_Rect documentsOption{15, screenHeight - 240, 240, 45};
+
+        // turn off
+
+        SDL_Rect shutdownOption{15, screenHeight - 100, 240, 45};
+
+        if (SDL_PointInRect(&mouse, &computerOption)) {
+          myComputerOpen = true;
+          startMenuOpen = false;
+        } else if (SDL_PointInRect(&mouse, &documentsOption)) {
+          myComputerOpen = true;
+          driveOpen = true;
+          selectedFolder = 0;
+          startMenuOpen = false;
+
+        } else if (SDL_PointInRect(&mouse, &shutdownOption)) {
+          xpDesktopActive = false;
+          startMenuOpen = false;
+          myComputerOpen = false;
+          driveOpen = false;
+
+          selectedFolder = -1;
+          openedFile = -1;
+        }
+      } else {
+        startMenuOpen = false;
+      }
+
+      continue;
+    }
+
     SDL_Rect closeButton{screenWidth - 65, 55, 25, 25};
 
     bool allCluesFound = fileRead[0] && fileRead[1];
@@ -442,6 +491,8 @@ void Game::drawAtmosphere() {
 
         // smoothstep
 
+        strength = strength * strength * (3.0 - 2.0f * strength);
+
         Uint8 alpha = static_cast<Uint8>(strength * 155.0f);
 
         pixels[y * (surface->pitch / 4) + x] =
@@ -534,13 +585,38 @@ void Game::drawWindowsXP() {
     SDL_SetRenderDrawColor(renderer, 120, 165, 210, 255);
   }
 
-  SDL_RenderDrawLine(renderer, 106, screenHeight - 36, 106, screenHeight - 4);
   // alright let's move ahead now
+
+  //
+
+  // update here
+
+  SDL_Rect taskbar{0, screenHeight - 40, screenWidth, 40};
+
+  SDL_SetRenderDrawColor(renderer, 25, 75, 145, 255);
+  SDL_RenderFillRect(renderer, &taskbar);
+
+  // start btn
+
+  SDL_Rect startButton{0, screenHeight - 40, 110, 40};
+
+  SDL_SetRenderDrawColor(renderer, 35, 145, 65, 255);
+  // uhhh i have a LOT TO DO, approx 60% to copmlete, im tireeed
+
+  SDL_RenderFillRect(renderer, &startButton);
+
+  SDL_SetRenderDrawColor(renderer, 100, 200, 110, 255);
+
+  SDL_RenderDrawRect(renderer, &startButton);
+  // AAYEEE IM TRYING IM TRRYING , lyrics of a song btw
+  // so yeah
+  //
+  //
+
+  drawText("start", 35, screenHeight - 30, {255, 255, 255, 255});
 
   drawText("2:00 AM", screenWidth - 95, screenHeight - 28,
            {255, 255, 255, 255});
-
-  // so yeah
 
   if (myComputerOpen) {
     drawMyComputerWindow();
@@ -556,6 +632,30 @@ void Game::drawWindowsXP() {
         }
       }
     }
+  }
+
+  if (startMenuOpen) {
+    SDL_Rect menu{0, screenHeight - 340, 270, 300};
+
+    SDL_SetRenderDrawColor(renderer, 225, 230, 225, 255);
+    SDL_RenderFillRect(renderer, &menu);
+
+    SDL_Rect menuHeader{0, screenHeight - 340, 270, 55};
+
+    SDL_SetRenderDrawColor(renderer, 35, 105, 175, 255);
+
+    SDL_RenderFillRect(renderer, &menuHeader);
+
+    drawText("Windows XP", 15, screenHeight - 325, {255, 255, 255, 255});
+    drawText("My Computer", 25, screenHeight - 280, {30, 30, 30, 255});
+
+    drawText("Documents", 25, screenHeight - 230, {30, 30, 30, 255});
+
+    SDL_SetRenderDrawColor(renderer, 180, 180, 180, 255);
+    SDL_RenderDrawLine(renderer, 10, screenHeight - 115, 260,
+                       screenHeight - 115);
+
+    drawText("Turn off Computer", 25, screenHeight - 85, {150, 30, 30, 255});
   }
 }
 
@@ -744,10 +844,6 @@ void Game::drawDriveWindow() {
                            "Users", "System vol info"};
 
   int y = content.y + 20;
-
-  SDL_Rect taskbar{0, screenHeight - 40, screenWidth, 40};
-  SDL_SetRenderDrawColor(renderer, 35, 85, 155, 255);
-  SDL_RenderFillRect(renderer, &taskbar);
 
   for (const char *folder : folders) {
     SDL_Rect folderIcon{content.x + 20, y, 28, 22};

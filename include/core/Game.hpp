@@ -65,6 +65,8 @@ private:
   int selectedFolder = -1;
   int openedFile = -1;
 
+  bool startMenuOpen = false;
+
   void drawFolderWindow();
   void drawTextFile();
   void drawMyComputerWindow();
