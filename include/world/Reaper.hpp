@@ -34,4 +34,28 @@ private:
   bool moving = false;
 
   void chooseStalkingPosition(float playerX, float playerY);
+
+  // to stop appearing from one pos let's do this ig
+
+  // last pos: leaves a fading shadow ig
+  float afterImageX = 0.0f;
+
+  float afterImageY = 0.0f;
+  // man this really reminds me of shadow from eminence in shadow anime for
+  // afterimages LOL
+
+  float afterImageAlpha = 0.0f;
+
+  float renderScale = 1.0f;
+
+  float edgeCooldown = 7.0f;
+  float edgeDuration = 0.0f;
+
+  // alr let's make reaper smooth
+
+  float animationTime = 0.0f;
+  float floatOffset = 0.0f;
+
+  float cloakSway = 0.0f;
+  float breathing = 0.0f;
 };

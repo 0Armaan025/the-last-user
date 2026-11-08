@@ -235,7 +235,8 @@ CMakeFiles/the-last-user.dir/src/world/Reaper.cpp.o: \
  /usr/include/SDL2/SDL_system.h /usr/include/SDL2/SDL_timer.h \
  /usr/include/SDL2/SDL_version.h /usr/include/SDL2/SDL_locale.h \
  /usr/include/SDL2/SDL_misc.h /usr/include/SDL2/SDL_blendmode.h \
- /usr/include/c++/16/algorithm /usr/include/c++/16/bits/stl_algo.h \
+ /usr/include/SDL2/SDL_render.h /usr/include/c++/16/algorithm \
+ /usr/include/c++/16/bits/stl_algo.h \
  /usr/include/c++/16/bits/algorithmfwd.h \
  /usr/include/c++/16/initializer_list /usr/include/c++/16/bits/stl_heap.h \
  /usr/include/c++/16/bits/uniform_int_dist.h \

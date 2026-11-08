@@ -3,6 +3,7 @@
 
 #include "../../include/world/Reaper.hpp"
 #include <SDL2/SDL_blendmode.h>
+#include <SDL2/SDL_render.h>
 #include <algorithm>
 #include <cmath>
 
@@ -35,7 +36,20 @@ void Reaper::update(float playerX, float playerY, bool unlocked,
 
   Uint32 now = SDL_GetTicks();
 
-  // first apperance
+  // alirght
+
+  animationTime += deltaTime;
+
+  // slwo floating
+
+  floatOffset = std::sin(animationTime * 1.8f) * 7.0f;
+
+  // side to side movement
+
+  cloakSway = std::sin(animationTime * 1.3f) * 5.0f;
+
+  breathing = std::sin(animationTime * 2.0f) * 1.5f;
+  //  first apperance
 
   if (!active) {
     active = true;
@@ -54,7 +68,23 @@ void Reaper::update(float playerX, float playerY, bool unlocked,
   facingAngle = std::atan2(dy, dx);
   float distance = std::sqrt(dx * dx + dy * dy);
 
+  renderScale = std::clamp(distance / 650.0f, 0.55f, 1.0f);
+
+  afterImageAlpha = std::max(0.0f, afterImageAlpha - 90.0f * deltaTime);
+
+  edgeCooldown -= deltaTime;
+
+  if (visible & edgeCooldown <= 0.0f) {
+    edgeCooldown = 0.8f;
+    edgeCooldown = 8.0f;
+  }
+
+  edgeDuration = std::max(0.0f, edgeDuration - deltaTime);
+
   if (visible && distance < 190.0f) {
+    afterImageX = x;
+    afterImageY = y;
+    afterImageAlpha = 110.0f;
     visible = false;
     opacity = 0.0f;
     waitTimer = 1.5f;
@@ -105,13 +135,57 @@ void Reaper::update(float playerX, float playerY, bool unlocked,
 }
 
 void Reaper::render(SDL_Renderer *renderer, const Camera &camera) const {
+
+  // reaper stalks now, let's go
+  // tiem to fix the reaper , let's do it
+
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+  // fading shadow afterimage
+
+  if (afterImageAlpha > 0.0f) {
+    SDL_Rect shadow =
+        camera.apply({static_cast<int>(afterImageX - 35),
+                      static_cast<int>(afterImageY + 80), 70, 12});
+
+    SDL_SetRenderDrawColor(renderer, 5, 5, 8,
+                           static_cast<Uint8>(afterImageAlpha));
+
+    SDL_RenderFillRect(renderer, &shadow);
+  }
   if (!visible || opacity <= 0.0f) {
     return;
   }
 
   Uint8 alpha = static_cast<Uint8>(opacity);
 
-  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+  // distance based silhouette let's go
+
+  auto scaledRect = [&](float offsetX, float offsetY, float width,
+                        float height) {
+    float sway = 0.0f;
+
+    if (offsetY > 20.0f) {
+      sway = cloakSway * (offsetY / 90.0f);
+    }
+
+    float adjustedY = offsetY + floatOffset;
+
+    float adjustedWidth = width;
+    float adjustedHeight = height;
+
+    if (offsetY < 20.0f) {
+      adjustedWidth += breathing;
+
+      adjustedHeight += breathing;
+    }
+    SDL_Rect worldRect{static_cast<int>(x + (offsetX + sway) * renderScale),
+                       static_cast<int>(y + adjustedY * renderScale),
+                       static_cast<int>(adjustedWidth * renderScale),
+                       static_cast<int>(adjustedHeight * renderScale)};
+
+    return camera.apply(worldRect);
+  };
 
   // now i want a good looking cloak for my reaper
 
@@ -137,6 +211,11 @@ void Reaper::render(SDL_Renderer *renderer, const Camera &camera) const {
   SDL_SetRenderDrawColor(renderer, 5, 5, 8, alpha);
   SDL_RenderFillRect(renderer, &hood);
 
+  SDL_Rect aura = scaledRect(-23, -17, 46, 52);
+  SDL_SetRenderDrawColor(renderer, 35, 8, 12, static_cast<Uint8>(alpha / 9));
+
+  SDL_RenderDrawRect(renderer, &aura);
+
   SDL_Rect face =
       camera.apply({static_cast<int>(x - 10), static_cast<int>(y + 3), 20, 23});
 
@@ -158,7 +237,59 @@ void Reaper::render(SDL_Renderer *renderer, const Camera &camera) const {
   SDL_RenderFillRect(renderer, &leftEye);
   SDL_RenderFillRect(renderer, &rightEye);
 
+  SDL_SetRenderDrawColor(renderer, 3, 4, 7, alpha);
+
+  SDL_Rect raggedEdges[] = {
+      scaledRect(-34, 87, 9, 12), scaledRect(-18, 91, 8, 10),
+      scaledRect(8, 90, 9, 13), scaledRect(25, 87, 8, 11)};
+
+  for (const SDL_Rect &edge : raggedEdges) {
+    SDL_RenderFillRect(renderer, &edge);
+  }
+
+  // ALR NOW WE NEED SOME RANDOM OCCASSIONAL SIGHTINGS (screen eddge ones)
+
+  if (edgeDuration > 0.0f) {
+    int screenWidth;
+    int screenHeight;
+
+    SDL_GetRendererOutputSize(renderer, &screenWidth, &screenHeight);
+
+    SDL_Rect worldPosition = camera.apply({
+        static_cast<int>(x),
+        static_cast<int>(y),
+        1,
+        1,
+    });
+
+    bool outside = worldPosition.x < 0 || worldPosition.x >= screenWidth ||
+                   worldPosition.y < 0 | worldPosition.y >= screenHeight;
+
+    if (outside) {
+      int edgeX = std::clamp(worldPosition.x, 24, screenWidth - 24);
+
+      int edgeY = std::clamp(worldPosition.y, 24, screenHeight - 24);
+
+      Uint8 edgeAlpha =
+          static_cast<Uint8>(150.0f * std::min(1.0f, edgeDuration / 0.8f));
+
+      SDL_Rect edgeHood{edgeX - 8, edgeY - 12, 16, 20};
+
+      SDL_Rect edgeCloak{edgeX - 13, edgeY + 8, 26, 24};
+
+      SDL_SetRenderDrawColor(renderer, 5, 5, 8, edgeAlpha);
+
+      SDL_RenderFillRect(renderer, &edgeCloak);
+      SDL_RenderFillRect(renderer, &edgeHood);
+
+      SDL_Rect edgeEyes{edgeX - 4, edgeY - 3, 8, 2};
+
+      SDL_SetRenderDrawColor(renderer, 145, 35, 35, edgeAlpha);
+      SDL_RenderFillRect(renderer, &edgeEyes);
+    }
+  }
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+  // our reaper sucks
 }
 
 void Reaper::chooseStalkingPosition(float playerX, float playerY) {
