@@ -15,6 +15,16 @@
 
 class Game {
 public:
+  enum class GameState { MainMenu, HowToPlay, Playing, GameOver };
+
+  GameState gameState = GameState::MainMenu;
+
+  int selectedMenuOption = 0;
+
+  void drawMainMenu();
+  void drawHowToPlay();
+  void startNewGame();
+
   Game(int width, int height);
   ~Game();
 

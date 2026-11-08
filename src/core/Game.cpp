@@ -199,6 +199,42 @@ void Game::handleEvents() {
     }
     if (gameOver) {
       if (e.type == SDL_KEYDOWN && !e.key.repeat) {
+
+        if (gameState == GameState::MainMenu) {
+          switch (e.key.keysym.sym) {
+          case SDLK_UP:
+          case SDLK_w:
+            selectedMenuOption = (selectedMenuOption + 2) % 3;
+
+            break;
+
+          case SDLK_DOWN:
+          case SDLK_s:
+            selectedMenuOption = (selectedMenuOption + 1) % 3;
+            break;
+          case SDLK_RETURN:
+          case SDLK_KP_ENTER:
+            if (selectedMenuOption == 0) {
+              startNewGame();
+            } else if (selectedMenuOption == 1) {
+              gameState = GameState::HowToPlay;
+            } else if (selectedMenuOption == 2) {
+              running = false;
+            }
+
+            break;
+          }
+
+          return;
+        }
+
+        if (gameState == GameState::HowToPlay) {
+          if (e.key.keysym.sym == SDLK_ESCAPE ||
+              e.key.keysym.sym == SDLK_RETURN) {
+            gameState = GameState::MainMenu;
+          }
+        }
+
         if (e.key.keysym.scancode == SDL_SCANCODE_R) {
           player.reset();
           newPersonalRecord = false;
@@ -481,6 +517,21 @@ void Game::draw() {
   if (xpDesktopActive) {
     drawWindowsXP();
     SDL_RenderPresent(renderer);
+    return;
+  }
+
+  if (gameState == GameState::MainMenu) {
+    drawMainMenu();
+    return;
+  }
+
+  if (gameState == GameState::HowToPlay) {
+    drawHowToPlay();
+    return;
+  }
+
+  if (gameState == GameState::GameOver) {
+    drawGameOver();
     return;
   }
   world.draw(renderer, camera);
@@ -1153,7 +1204,7 @@ void Game::drawTelephoneMessage() {
 
   const char *message = nullptr;
 
-  if (!fileRead[0 && !fileRead[1]]) {
+  if (!fileRead[0] && !fileRead[1]) {
     message = "UNKNOWN CALLER\n\n"
               "You shouldn't have come back.\n"
               "The computer was never supposed to turn on.\n\n"
@@ -1291,21 +1342,6 @@ void Game::drawGameOver() {
 
   drawText("[R] RESTART     [ESC]  QUIT", panel.y + 225, {195, 195, 185, 255});
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
-
-  SDL_SetRenderDrawColor(renderer, 14, 13, 18, 255);
-  SDL_RenderFillRect(renderer, &panel);
-
-  SDL_SetRenderDrawColor(renderer, 125, 45, 50, 255);
-  SDL_RenderDrawRect(renderer, &panel);
-
-  drawText("GAME OVER", panel.y + 45, {205, 65, 65, 255});
-
-  drawText("The town has claimed another visitor.", panel.y + 105,
-           {195, 190, 180, 255});
-
-  drawText("[R] RESTART     [ESC] QUIT", panel.y + 165, {110, 205, 220, 255});
-
-  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 }
 
 void Game::drawWaveInfo() {
@@ -1362,4 +1398,19 @@ void Game::drawSurvivalInfo() {
   }
 
   SDL_FreeSurface(surface);
+}
+
+void Game::startNewGame() {
+  playerHealth = 100.0f;
+  survivalTime = 0.0f;
+  finalSurvivalTime = 0.0f;
+  survivalStarted = false;
+  newPersonalRecord = false;
+
+  batSwarm.reset();
+  blaster.reset();
+
+  gameOver = false;
+
+  gameState = GameState::Playing;
 }
