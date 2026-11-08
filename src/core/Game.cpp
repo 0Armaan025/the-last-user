@@ -201,6 +201,7 @@ void Game::handleEvents() {
       if (e.type == SDL_KEYDOWN && !e.key.repeat) {
         if (e.key.keysym.scancode == SDL_SCANCODE_R) {
           player.reset();
+          newPersonalRecord = false;
           survivalTime = 0.0f;
           finalSurvivalTime = 0.0f;
           survivalStarted = false;
@@ -428,6 +429,7 @@ void Game::update(float deltaTime) {
   if (playerHealth <= 0.0f) {
     finalSurvivalTime = survivalTime;
 
+    newPersonalRecord = survivalStarted && finalSurvivalTime > bestSurvivalTime;
     if (finalSurvivalTime > bestSurvivalTime) {
       bestSurvivalTime = finalSurvivalTime;
       saveBestSurvivalTime();
@@ -1243,7 +1245,14 @@ void Game::drawGameOver() {
 
   SDL_RenderFillRect(renderer, &overlay);
 
-  SDL_Rect panel{screenWidth / 2 - 240, screenHeight / 2 - 145, 480, 290};
+  SDL_Rect panel{screenWidth / 2 - 250, screenHeight / 2 - 165, 500, 330};
+
+  SDL_SetRenderDrawColor(renderer, 14, 13, 18, 255);
+  SDL_RenderFillRect(renderer, &panel);
+
+  SDL_SetRenderDrawColor(renderer, 125, 45, 50, 255);
+  SDL_RenderDrawRect(renderer, &panel);
+
   auto drawText = [&](const char *message, int y, SDL_Color color) {
     SDL_Surface *surface = TTF_RenderUTF8_Blended(font, message, color);
 
@@ -1281,6 +1290,7 @@ void Game::drawGameOver() {
   drawText(record.c_str(), panel.y + 165, {220, 190, 110, 255});
 
   drawText("[R] RESTART     [ESC]  QUIT", panel.y + 225, {195, 195, 185, 255});
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 
   SDL_SetRenderDrawColor(renderer, 14, 13, 18, 255);
   SDL_RenderFillRect(renderer, &panel);

@@ -106,6 +106,7 @@ private:
   float finalSurvivalTime = 0.0f;
   float bestSurvivalTime = 0.0f;
   bool survivalStarted = false;
+  bool newPersonalRecord = false;
 
   std::string recordPath;
 
