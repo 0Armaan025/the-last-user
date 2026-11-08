@@ -1,3 +1,0 @@
-/home/armaan025/Desktop/ARMAAN/Coding/projects/the-last-user/build/CMakeFiles/the-last-user.dir
-/home/armaan025/Desktop/ARMAAN/Coding/projects/the-last-user/build/CMakeFiles/edit_cache.dir
-/home/armaan025/Desktop/ARMAAN/Coding/projects/the-last-user/build/CMakeFiles/rebuild_cache.dir

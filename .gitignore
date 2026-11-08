@@ -1,1 +1,4 @@
-build/
+# Ignore build artifacts except the web deploy folder
+build/*
+!build/web/
+build/web/include/
