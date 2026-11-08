@@ -430,17 +430,21 @@ void Game::handleEvents() {
 }
 void Game::update(float deltaTime) {
 
-  if (gameOver) {
+  // Only update gameplay when actually playing
+  if (gameState != GameState::Playing || gameOver) {
     return;
   }
 
+  // Reaper
   reaper.update(player.getCenterX(), player.getCenterY(),
                 fileRead[0] && fileRead[1], deltaTime);
 
+  // Pause world interactions while interfaces are open
   if (xpDesktopActive || telephoneMessageOpen) {
     return;
   }
 
+  // Player movement
   player.handleInput();
 
   std::vector<SDL_Rect> obstacles = world.getSkeletonBounds();
@@ -449,10 +453,11 @@ void Game::update(float deltaTime) {
   player.update(deltaTime, obstacles);
   player.constrainToWorld(2400, 1600);
 
-  // Update bats first
+  // Update bat swarm
   const float damage = batSwarm.update(player.getCenterX(), player.getCenterY(),
                                        fileRead[0] && fileRead[1], deltaTime);
 
+  // Start survival timer when first wave appears
   if (batSwarm.getWave() > 0) {
     survivalStarted = true;
   }
@@ -460,29 +465,37 @@ void Game::update(float deltaTime) {
   if (survivalStarted) {
     survivalTime += std::max(0.0f, deltaTime);
   }
+
+  // Apply damage
   playerHealth = std::max(0.0f, playerHealth - damage);
 
+  // Game over
   if (playerHealth <= 0.0f) {
     finalSurvivalTime = survivalTime;
 
     newPersonalRecord = survivalStarted && finalSurvivalTime > bestSurvivalTime;
-    if (finalSurvivalTime > bestSurvivalTime) {
+
+    if (newPersonalRecord) {
       bestSurvivalTime = finalSurvivalTime;
       saveBestSurvivalTime();
     }
 
     gameOver = true;
+    gameState = GameState::GameOver;
+
     return;
   }
 
-  // Then update the blaster
+  // Energy blaster
   const Uint8 *keyboard = SDL_GetKeyboardState(nullptr);
 
   blaster.update(player.getCenterX(), player.getCenterY(),
                  keyboard[SDL_SCANCODE_SPACE], deltaTime, batSwarm);
 
+  // Telephone
   telephone.update(player.getCenterX(), player.getCenterY());
 
+  // Computer interaction distance
   SDL_Rect computer = world.getComputerBounds();
 
   const float playerX = player.getCenterX();
@@ -505,53 +518,69 @@ void Game::update(float deltaTime) {
 
   nearComputer = distance <= INTERACTION_DISTANCE;
 
+  // Camera
   camera.follow(playerX, playerY, deltaTime);
 }
 void Game::draw() {
-  SDL_SetRenderDrawColor(renderer, 24, 35, 30, 255);
-  SDL_RenderClear(renderer);
-  // drawGrid();
-  // drawing not the actual player but the player with the new camera coords
-  // let us draw the world before the player
 
+  SDL_SetRenderDrawColor(renderer, 5, 7, 9, 255);
+  SDL_RenderClear(renderer);
+
+  // Main menu
+  if (gameState == GameState::MainMenu) {
+    drawMainMenu();
+    SDL_RenderPresent(renderer);
+    return;
+  }
+
+  // Instructions
+  if (gameState == GameState::HowToPlay) {
+    drawHowToPlay();
+    SDL_RenderPresent(renderer);
+    return;
+  }
+
+  // Game over
+  if (gameState == GameState::GameOver) {
+    drawGameOver();
+    SDL_RenderPresent(renderer);
+    return;
+  }
+
+  // Windows XP desktop
   if (xpDesktopActive) {
     drawWindowsXP();
     SDL_RenderPresent(renderer);
     return;
   }
 
-  if (gameState == GameState::MainMenu) {
-    drawMainMenu();
-    return;
-  }
-
-  if (gameState == GameState::HowToPlay) {
-    drawHowToPlay();
-    return;
-  }
-
-  if (gameState == GameState::GameOver) {
-    drawGameOver();
-    return;
-  }
+  // World
   world.draw(renderer, camera);
 
+  // World objects
   telephone.render(renderer, camera);
   reaper.render(renderer, camera);
   batSwarm.render(renderer, camera);
   blaster.render(renderer, camera);
+
+  // Player
   SDL_Rect screenPlayer = camera.apply(player.getBounds());
 
   SDL_SetRenderDrawColor(renderer, 180, 100, 50, 255);
-
   SDL_RenderFillRect(renderer, &screenPlayer);
+
+  // Atmosphere and HUD
   drawAtmosphere();
   drawHealthBar();
   drawSurvivalInfo();
   drawWaveInfo();
+
+  // Blaster status
   if (blaster.isCollected()) {
+
     SDL_Surface *surface = TTF_RenderUTF8_Blended(
         font, "LASER READY | HOLD SPACE TO FIRE", {100, 210, 240, 255});
+
     if (surface) {
       SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
@@ -559,25 +588,24 @@ void Game::draw() {
         SDL_Rect destination{25, 85, surface->w, surface->h};
 
         SDL_RenderCopy(renderer, texture, nullptr, &destination);
+
         SDL_DestroyTexture(texture);
       }
 
       SDL_FreeSurface(surface);
-      // alright
     }
-  };
+  }
 
+  // Interaction prompt
   drawInteractionPrompt();
+
+  // Telephone dialogue
   if (telephoneMessageOpen) {
     drawTelephoneMessage();
-  }
-  if (gameOver) {
-    drawGameOver();
   }
 
   SDL_RenderPresent(renderer);
 }
-
 void Game::run() {
   if (!init()) {
     return;
@@ -1401,16 +1429,164 @@ void Game::drawSurvivalInfo() {
 }
 
 void Game::startNewGame() {
+  player.reset();
+
   playerHealth = 100.0f;
-  survivalTime = 0.0f;
-  finalSurvivalTime = 0.0f;
-  survivalStarted = false;
-  newPersonalRecord = false;
 
-  batSwarm.reset();
-  blaster.reset();
+  selectedFolder = -1;
+  openedFile = -1;
 
-  gameOver = false;
+  telephoneMessageOpen = false;
+  nearComputer = false;
+  computerInteracted = false;
 
   gameState = GameState::Playing;
+}
+void Game::drawMainMenu() {
+  SDL_SetRenderDrawColor(renderer, 5, 7, 9, 255);
+  SDL_RenderClear(renderer);
+
+  // Background atmosphere
+  SDL_SetRenderDrawColor(renderer, 17, 23, 24, 255);
+
+  for (int y = 0; y < screenHeight; y += 5) {
+    SDL_RenderDrawLine(renderer, 0, y, screenWidth, y);
+  }
+
+  // Central panel
+  SDL_Rect panel{screenWidth / 2 - 250, screenHeight / 2 - 235, 500, 470};
+
+  SDL_SetRenderDrawColor(renderer, 10, 13, 15, 255);
+  SDL_RenderFillRect(renderer, &panel);
+
+  SDL_SetRenderDrawColor(renderer, 75, 87, 82, 255);
+  SDL_RenderDrawRect(renderer, &panel);
+
+  // Text rendering helper
+  auto drawText = [&](const char *message, int y, SDL_Color color) {
+    SDL_Surface *surface = TTF_RenderUTF8_Blended(font, message, color);
+
+    if (!surface) {
+      return;
+    }
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    if (texture) {
+      SDL_Rect destination{screenWidth / 2 - surface->w / 2, y, surface->w,
+                           surface->h};
+
+      SDL_RenderCopy(renderer, texture, nullptr, &destination);
+      SDL_DestroyTexture(texture);
+    }
+
+    SDL_FreeSurface(surface);
+  };
+
+  // Title
+  drawText("THE LAST USER", panel.y + 65, {215, 220, 205, 255});
+
+  drawText("A WORLD LEFT BEHIND", panel.y + 100, {105, 125, 115, 255});
+
+  // Divider
+  SDL_SetRenderDrawColor(renderer, 75, 90, 82, 255);
+
+  SDL_RenderDrawLine(renderer, panel.x + 75, panel.y + 145,
+                     panel.x + panel.w - 75, panel.y + 145);
+
+  // Menu options
+  const char *options[] = {"NEW GAME", "HOW TO PLAY", "QUIT"};
+
+  for (int i = 0; i < 3; ++i) {
+    const int y = panel.y + 190 + i * 65;
+
+    SDL_Rect option{screenWidth / 2 - 155, y - 10, 310, 45};
+
+    if (selectedMenuOption == i) {
+      SDL_SetRenderDrawColor(renderer, 38, 49, 46, 255);
+      SDL_RenderFillRect(renderer, &option);
+
+      SDL_SetRenderDrawColor(renderer, 115, 140, 125, 255);
+      SDL_RenderDrawRect(renderer, &option);
+    }
+
+    SDL_Color color = selectedMenuOption == i ? SDL_Color{230, 230, 210, 255}
+                                              : SDL_Color{125, 135, 125, 255};
+
+    drawText(options[i], y, color);
+
+    if (selectedMenuOption == i) {
+      SDL_SetRenderDrawColor(renderer, 190, 75, 65, 255);
+
+      SDL_Rect marker{option.x + 18, option.y + 17, 7, 7};
+
+      SDL_RenderFillRect(renderer, &marker);
+    }
+  }
+
+  drawText("[ W / S ] SELECT     [ ENTER ] CONFIRM", panel.y + 415,
+           {100, 115, 105, 255});
+}
+void Game::drawHowToPlay() {
+  SDL_SetRenderDrawColor(renderer, 5, 7, 9, 255);
+  SDL_RenderClear(renderer);
+
+  SDL_Rect panel{screenWidth / 2 - 310, screenHeight / 2 - 235, 620, 470};
+
+  SDL_SetRenderDrawColor(renderer, 10, 13, 15, 255);
+  SDL_RenderFillRect(renderer, &panel);
+
+  SDL_SetRenderDrawColor(renderer, 75, 87, 82, 255);
+  SDL_RenderDrawRect(renderer, &panel);
+
+  auto drawText = [&](const char *message, int y, SDL_Color color) {
+    SDL_Surface *surface = TTF_RenderUTF8_Blended(font, message, color);
+
+    if (!surface) {
+      return;
+    }
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    if (texture) {
+      SDL_Rect destination{screenWidth / 2 - surface->w / 2, y, surface->w,
+                           surface->h};
+
+      SDL_RenderCopy(renderer, texture, nullptr, &destination);
+      SDL_DestroyTexture(texture);
+    }
+
+    SDL_FreeSurface(surface);
+  };
+
+  drawText("HOW TO PLAY", panel.y + 35, {215, 220, 205, 255});
+
+  SDL_SetRenderDrawColor(renderer, 75, 90, 82, 255);
+
+  SDL_RenderDrawLine(renderer, panel.x + 65, panel.y + 75,
+                     panel.x + panel.w - 65, panel.y + 75);
+
+  // Controls
+  drawText("CONTROLS", panel.y + 105, {190, 115, 95, 255});
+
+  drawText("W A S D       Move", panel.y + 145, {190, 195, 185, 255});
+
+  drawText("E                 Interact", panel.y + 180, {190, 195, 185, 255});
+
+  drawText("SPACE         Fire energy blaster", panel.y + 215,
+           {190, 195, 185, 255});
+
+  // Gameplay
+  drawText("SURVIVAL", panel.y + 270, {190, 115, 95, 255});
+
+  drawText("Explore the town and investigate the computer.", panel.y + 305,
+           {175, 185, 175, 255});
+
+  drawText("Discover clues to uncover what happened.", panel.y + 335,
+           {175, 185, 175, 255});
+
+  drawText("Survive the creatures that hunt you.", panel.y + 365,
+           {175, 185, 175, 255});
+
+  drawText("[ ESC ] BACK TO MENU", panel.y + 420, {190, 100, 90, 255});
 }
