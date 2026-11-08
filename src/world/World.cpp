@@ -21,6 +21,7 @@ void World::draw(SDL_Renderer *renderer, const Camera &camera) {
 
         // for now, i'll just put a random color
 
+        // okie
         SDL_SetRenderDrawColor(renderer, 35, 46, 39, 255);
 
       } else {

@@ -6,13 +6,13 @@
 
 constexpr float PI = 3.14159;
 
-void BatSwarm::spawn(float playerX, float playerY) {
+void BatSwarm::spawnWave(float playerX, float playerY) {
   bats.clear();
 
-  constexpr int BAT_COUNT = 14;
+  const int count = 12 + wave * 2;
 
-  for (int i = 0; i < BAT_COUNT; ++i) {
-    float angle = (2.0f * PI * i) / BAT_COUNT;
+  for (int i = 0; i < count; ++i) {
+    float angle = (2.0f * PI * i) / count;
 
     Bat bat;
 
@@ -42,7 +42,7 @@ float BatSwarm::update(float playerX, float playerY, bool unlocked,
   elapsed += deltaTime;
 
   if (!spawned && elapsed >= 18.0f) {
-    spawn(playerX, playerY);
+    spawnWave(playerX, playerY);
   }
 
   if (!spawned) {
@@ -82,9 +82,15 @@ float BatSwarm::update(float playerX, float playerY, bool unlocked,
 
     float playerDistance = std::sqrt(playerDX * playerDX + playerDY * playerDY);
 
-    if (playerDistance < 38.0f) {
+    if (std::sqrt(playerDX * playerDX + playerDY * playerDY) < 38.0f) {
       touchingPlayer = true;
     }
+  }
+
+  // another wave
+
+  if (static_cast<int>(bats.size()) <= 5) {
+    spawnWave(playerX, playerY);
   }
 
   if (touchingPlayer && damageCooldown <= 0.0f) {
@@ -94,6 +100,63 @@ float BatSwarm::update(float playerX, float playerY, bool unlocked,
 
   return 0.0f;
 }
+
+bool BatSwarm::getNearestBat(float x, float y, float &targetX,
+                             float &targetY) const {
+  if (bats.empty()) {
+    return false;
+  }
+
+  float nearestDistance = 900.0f * 900.0f;
+
+  bool found = false;
+
+  for (const Bat &bat : bats) {
+    float dx = bat.x - x;
+    float dy = bat.y - y;
+
+    float distanceSquared = dx * dx + dy * dy;
+
+    if (distanceSquared < nearestDistance) {
+      nearestDistance = distanceSquared;
+      targetX = bat.x;
+      targetY = bat.y;
+      found = true;
+    }
+  }
+
+  return found;
+}
+
+// iused similar stuff inmythwood btw, don't call me a copier lol
+bool BatSwarm::hitBatAt(float x, float y, float radius) {
+  for (auto it = bats.begin(); it != bats.end(); ++it) {
+
+    float dx = it->x - x;
+    float dy = it->y - y;
+
+    if (dx * dx + dy * dy <= radius * radius) {
+      bats.erase(it);
+      return true;
+    }
+  }
+
+  return true;
+}
+
+int BatSwarm::getWave() const { return wave; }
+
+int BatSwarm::getRemaining() const { return static_cast<int>(bats.size()); }
+
+void BatSwarm::reset() {
+  bats.clear();
+  elapsed = 0.0f;
+  damageCooldown = 0.0f;
+  spawned = false;
+  wave = 0;
+}
+
+// alright
 
 void BatSwarm::render(SDL_Renderer *renderer, const Camera &camera) const {
   SDL_SetRenderDrawColor(renderer, 12, 10, 18, 230);

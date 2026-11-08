@@ -11,6 +11,15 @@ public:
 
   void render(SDL_Renderer *renderer, const Camera &camera) const;
 
+  bool getNearestBat(float x, float y, float &targetX, float &targetY) const;
+
+  bool hitBatAt(float x, float y, float radius);
+
+  int getWave() const;
+  int getRemaining() const;
+
+  void reset();
+
 private:
   struct Bat {
 
@@ -28,6 +37,7 @@ private:
   float damageCooldown = 0.0f;
 
   bool spawned = false;
+  int wave = 0;
 
-  void spawn(float playerX, float playerY);
+  void spawnWave(float playerX, float playerY);
 };
