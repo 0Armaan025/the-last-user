@@ -199,59 +199,57 @@ void Game::handleEvents() {
       running = false;
       continue;
     }
-    if (gameOver) {
-      // Handle menu and game-over states first.
-      if (e.type == SDL_KEYDOWN && !e.key.repeat) {
+    // Handle menu and game-over states first.
+    if (e.type == SDL_KEYDOWN && !e.key.repeat) {
 
-        if (gameState == GameState::MainMenu) {
-          switch (e.key.keysym.sym) {
-          case SDLK_UP:
-          case SDLK_w:
-            selectedMenuOption = (selectedMenuOption + 2) % 3;
-            break;
+      if (gameState == GameState::MainMenu) {
+        switch (e.key.keysym.sym) {
+        case SDLK_UP:
+        case SDLK_w:
+          selectedMenuOption = (selectedMenuOption + 2) % 3;
+          break;
 
-          case SDLK_DOWN:
-          case SDLK_s:
-            selectedMenuOption = (selectedMenuOption + 1) % 3;
-            break;
+        case SDLK_DOWN:
+        case SDLK_s:
+          selectedMenuOption = (selectedMenuOption + 1) % 3;
+          break;
 
-          case SDLK_RETURN:
-          case SDLK_KP_ENTER:
-            if (selectedMenuOption == 0) {
-              startNewGame();
-            } else if (selectedMenuOption == 1) {
-              gameState = GameState::HowToPlay;
-            } else if (selectedMenuOption == 2) {
-              running = false;
-            }
-            break;
-
-          case SDLK_ESCAPE:
-            running = false;
-            break;
-          }
-
-          continue;
-        }
-
-        if (gameState == GameState::HowToPlay) {
-          if (e.key.keysym.sym == SDLK_ESCAPE ||
-              e.key.keysym.sym == SDLK_RETURN) {
-            gameState = GameState::MainMenu;
-          }
-
-          continue;
-        }
-
-        if (gameState == GameState::GameOver) {
-          if (e.key.keysym.scancode == SDL_SCANCODE_R) {
+        case SDLK_RETURN:
+        case SDLK_KP_ENTER:
+          if (selectedMenuOption == 0) {
             startNewGame();
-          } else if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+          } else if (selectedMenuOption == 1) {
+            gameState = GameState::HowToPlay;
+          } else if (selectedMenuOption == 2) {
             running = false;
           }
+          break;
 
-          continue;
+        case SDLK_ESCAPE:
+          running = false;
+          break;
         }
+
+        continue;
+      }
+
+      if (gameState == GameState::HowToPlay) {
+        if (e.key.keysym.sym == SDLK_ESCAPE ||
+            e.key.keysym.sym == SDLK_RETURN) {
+          gameState = GameState::MainMenu;
+        }
+
+        continue;
+      }
+
+      if (gameState == GameState::GameOver) {
+        if (e.key.keysym.scancode == SDL_SCANCODE_R) {
+          startNewGame();
+        } else if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+          running = false;
+        }
+
+        continue;
       }
 
       // Safety guard: don't process gameplay input after game over.
@@ -522,6 +520,16 @@ void Game::draw() {
   SDL_SetRenderDrawColor(renderer, 5, 7, 9, 255);
   SDL_RenderClear(renderer);
 
+  if (gameState == GameState::MainMenu) {
+    drawMainMenu();
+    SDL_RenderPresent(renderer);
+    return;
+  }
+  if (gameState == GameState::HowToPlay) {
+    drawHowToPlay();
+    SDL_RenderPresent(renderer);
+    return;
+  }
   // Main menu
   // Game over
   if (gameState == GameState::GameOver) {
