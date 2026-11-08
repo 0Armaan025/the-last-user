@@ -7,6 +7,7 @@
 constexpr float PI = 3.14159;
 
 void BatSwarm::spawnWave(float playerX, float playerY) {
+  ++wave;
   bats.clear();
 
   const int count = 12 + wave * 2;
@@ -27,6 +28,8 @@ void BatSwarm::spawnWave(float playerX, float playerY) {
     bats.push_back(bat);
   }
 
+  // alright
+  // i wanna see something asap btw
   spawned = true;
 }
 
@@ -80,9 +83,10 @@ float BatSwarm::update(float playerX, float playerY, bool unlocked,
     float playerDX = playerX - bat.x;
     float playerDY = playerY - bat.y;
 
-    float playerDistance = std::sqrt(playerDX * playerDX + playerDY * playerDY);
+    const float playerDistanceSquared =
+        playerDX * playerDX + playerDY * playerDY;
 
-    if (std::sqrt(playerDX * playerDX + playerDY * playerDY) < 38.0f) {
+    if (playerDistanceSquared < 38.0f * 38.0f) {
       touchingPlayer = true;
     }
   }
@@ -141,7 +145,7 @@ bool BatSwarm::hitBatAt(float x, float y, float radius) {
     }
   }
 
-  return true;
+  return false;
 }
 
 int BatSwarm::getWave() const { return wave; }

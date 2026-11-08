@@ -12,5 +12,6 @@ int main() {
 
   game.run();
 
+  // let's continue
   return 0;
 }

@@ -39,37 +39,49 @@ void EnergyBlaster::fire(float playerX, float playerY, const BatSwarm &swarm) {
 
 void EnergyBlaster::update(float playerX, float playerY, bool firing,
                            float deltaTime, BatSwarm &swarm) {
+
+  // Pickup detection
   if (!collected) {
-    float dx = playerX - (pickupBounds.x + pickupBounds.w / 2.0f);
-    float dy = playerY - (pickupBounds.y + pickupBounds.h / 2.0f);
+    const float pickupX = pickupBounds.x + pickupBounds.w / 2.0f;
+
+    const float pickupY = pickupBounds.y + pickupBounds.h / 2.0f;
+
+    const float dx = playerX - pickupX;
+    const float dy = playerY - pickupY;
 
     if (dx * dx + dy * dy < 55.0f * 55.0f) {
       collected = true;
     }
+  }
 
-    fireCooldown = std::max(0.0f, fireCooldown - deltaTime);
+  // No firing before collecting the gun
+  if (!collected) {
+    return;
+  }
 
-    if (collected && firing && fireCooldown <= 0.0f) {
-      fire(playerX, playerY, swarm);
-      fireCooldown = 0.35f;
-    }
+  // Firing cooldown
+  fireCooldown = std::max(0.0f, fireCooldown - deltaTime);
 
-    for (auto it = pulses.begin(); it != pulses.end();) {
-      it->x += it->vx * deltaTime;
-      it->y += it->vy * deltaTime;
-      it->life -= deltaTime;
+  if (firing && fireCooldown <= 0.0f) {
+    fire(playerX, playerY, swarm);
+    fireCooldown = 0.35f;
+  }
 
-      bool hit = swarm.hitBatAt(it->x, it->y, 20.0f);
+  // Update existing energy pulses
+  for (auto it = pulses.begin(); it != pulses.end();) {
+    it->x += it->vx * deltaTime;
+    it->y += it->vy * deltaTime;
+    it->life -= deltaTime;
 
-      if (hit || it->life <= 0.0f) {
-        it = pulses.erase(it);
-      } else {
-        ++it;
-      }
+    const bool hit = swarm.hitBatAt(it->x, it->y, 20.0f);
+
+    if (hit || it->life <= 0.0f) {
+      it = pulses.erase(it);
+    } else {
+      ++it;
     }
   }
 }
-
 void EnergyBlaster::render(SDL_Renderer *renderer, const Camera &camera) const {
   if (!collected) {
     SDL_Rect pickup = camera.apply(pickupBounds);

@@ -337,35 +337,29 @@ void Game::handleEvents() {
   }
 }
 void Game::update(float deltaTime) {
-  // handle Input
-  // and update player or something
 
   if (gameOver) {
     return;
   }
-  const Uint8 *keyboard = SDL_GetKeyboardState(nullptr);
-
-  blaster.update(player.getCenterX(), player.getCenterY(),
-                 keyboard[SDL_SCANCODE_SPACE], deltaTime, batSwarm);
 
   reaper.update(player.getCenterX(), player.getCenterY(),
                 fileRead[0] && fileRead[1], deltaTime);
-  if (xpDesktopActive) {
-    return;
-  }
 
-  if (telephoneMessageOpen) {
+  if (xpDesktopActive || telephoneMessageOpen) {
     return;
   }
 
   player.handleInput();
+
   std::vector<SDL_Rect> obstacles = world.getSkeletonBounds();
   obstacles.push_back(world.getComputerBounds());
+
   player.update(deltaTime, obstacles);
   player.constrainToWorld(2400, 1600);
 
-  float damage = batSwarm.update(player.getCenterX(), player.getCenterY(),
-                                 fileRead[0] && fileRead[1], deltaTime);
+  // Update bats first
+  const float damage = batSwarm.update(player.getCenterX(), player.getCenterY(),
+                                       fileRead[0] && fileRead[1], deltaTime);
 
   playerHealth = std::max(0.0f, playerHealth - damage);
 
@@ -373,38 +367,36 @@ void Game::update(float deltaTime) {
     gameOver = true;
     return;
   }
+
+  // Then update the blaster
+  const Uint8 *keyboard = SDL_GetKeyboardState(nullptr);
+
+  blaster.update(player.getCenterX(), player.getCenterY(),
+                 keyboard[SDL_SCANCODE_SPACE], deltaTime, batSwarm);
+
   telephone.update(player.getCenterX(), player.getCenterY());
 
   SDL_Rect computer = world.getComputerBounds();
 
-  float playerX = player.getCenterX();
-  float playerY = player.getCenterY();
-  // nearest point on the computer rect
-  float nearestX = std::clamp(playerX, static_cast<float>(computer.x),
+  const float playerX = player.getCenterX();
+  const float playerY = player.getCenterY();
 
-                              static_cast<float>(computer.x + computer.w));
+  const float nearestX =
+      std::clamp(playerX, static_cast<float>(computer.x),
+                 static_cast<float>(computer.x + computer.w));
 
-  float nearestY = std::clamp(playerY, static_cast<float>(computer.y),
+  const float nearestY =
+      std::clamp(playerY, static_cast<float>(computer.y),
+                 static_cast<float>(computer.y + computer.h));
 
-                              static_cast<float>(computer.y + computer.h));
+  const float dx = playerX - nearestX;
+  const float dy = playerY - nearestY;
 
-  float dx = playerX - nearestX;
-  float dy = playerY - nearestY;
-
-  float distance = std::sqrt(dx * dx + dy * dy);
+  const float distance = std::sqrt(dx * dx + dy * dy);
 
   constexpr float INTERACTION_DISTANCE = 120.0f;
 
   nearComputer = distance <= INTERACTION_DISTANCE;
-
-  // testing
-
-  // if (nearComputer) {
-  //   std::cout << "Near computer" << std::endl;
-  // }
-  //
-  // a lil optimization as well
-  //
 
   camera.follow(playerX, playerY, deltaTime);
 }
@@ -434,6 +426,23 @@ void Game::draw() {
   drawAtmosphere();
   drawHealthBar();
   drawWaveInfo();
+  if (blaster.isCollected()) {
+    SDL_Surface *surface = TTF_RenderUTF8_Blended(
+        font, "LASER READY | HOLD SPACE TO FIRE", {100, 210, 240, 255});
+    if (surface) {
+      SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+      if (texture) {
+        SDL_Rect destination{25, 85, surface->w, surface->h};
+
+        SDL_RenderCopy(renderer, texture, nullptr, &destination);
+        SDL_DestroyTexture(texture);
+      }
+
+      SDL_FreeSurface(surface);
+    }
+  };
+
   drawInteractionPrompt();
   if (telephoneMessageOpen) {
     drawTelephoneMessage();
