@@ -255,7 +255,12 @@ void Reaper::render(SDL_Renderer *renderer, const Camera &camera) const {
     int screenWidth;
     int screenHeight;
 
+#ifdef __EMSCRIPTEN__
+    screenWidth = 900;
+    screenHeight = 480;
+#else
     SDL_GetRendererOutputSize(renderer, &screenWidth, &screenHeight);
+#endif
 
     SDL_Rect worldPosition = camera.apply({
         static_cast<int>(x),
