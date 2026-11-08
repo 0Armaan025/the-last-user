@@ -205,6 +205,7 @@ void Reaper::render(SDL_Renderer *renderer, const Camera &camera) const {
 
   // hood
 
+  // alirght
   SDL_Rect hood = camera.apply(
       {static_cast<int>(x - 17), static_cast<int>(y - 10), 34, 42});
 
@@ -216,6 +217,7 @@ void Reaper::render(SDL_Renderer *renderer, const Camera &camera) const {
 
   SDL_RenderDrawRect(renderer, &aura);
 
+  // now we need enemies
   SDL_Rect face =
       camera.apply({static_cast<int>(x - 10), static_cast<int>(y + 3), 20, 23});
 
