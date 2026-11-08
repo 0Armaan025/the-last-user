@@ -179,7 +179,11 @@ bool Game::init() {
     std::cout << "ttf error: " << TTF_GetError() << "\n";
     return false;
   }
-  font = TTF_OpenFont("/usr/share/fonts/TTF/DejaVuSerif.ttf", 18);
+  font = TTF_OpenFont("assets/fonts/DejaVuSerif.ttf", 18);
+
+  if (!font) {
+    font = TTF_OpenFont("/usr/share/fonts/TTF/DejaVuSerif.ttf", 18);
+  }
 
   if (!font) {
     std::cout << "Font loading faileeed: " << TTF_GetError() << std::endl;
@@ -195,13 +199,16 @@ void Game::handleEvents() {
   SDL_Event e;
 
   while (SDL_PollEvent(&e)) {
+
+    // Window close
     if (e.type == SDL_QUIT) {
       running = false;
       continue;
     }
-    // Handle menu and game-over states first.
+
     if (e.type == SDL_KEYDOWN && !e.key.repeat) {
 
+      // Main menu
       if (gameState == GameState::MainMenu) {
         switch (e.key.keysym.sym) {
         case SDLK_UP:
@@ -233,6 +240,7 @@ void Game::handleEvents() {
         continue;
       }
 
+      // How to play
       if (gameState == GameState::HowToPlay) {
         if (e.key.keysym.sym == SDLK_ESCAPE ||
             e.key.keysym.sym == SDLK_RETURN) {
@@ -242,6 +250,7 @@ void Game::handleEvents() {
         continue;
       }
 
+      // Game over
       if (gameState == GameState::GameOver) {
         if (e.key.keysym.scancode == SDL_SCANCODE_R) {
           startNewGame();
@@ -252,173 +261,205 @@ void Game::handleEvents() {
         continue;
       }
 
-      // Safety guard: don't process gameplay input after game over.
+      // Don't process gameplay input after game over
       if (gameOver) {
         continue;
-      } // Keyboard input
-      if (e.type == SDL_KEYDOWN && !e.key.repeat) {
+      }
 
-        // Telephone dialogue gets priority
-        if (telephoneMessageOpen) {
-          if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
-            telephoneMessageOpen = false;
-          }
-
-          continue;
-        }
-
-        // Windows XP controls
-        if (xpDesktopActive) {
-          if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
-            if (openedFile >= 0) {
-              openedFile = -1;
-            } else if (selectedFolder >= 0) {
-              selectedFolder = -1;
-            } else if (driveOpen) {
-              driveOpen = false;
-            } else if (myComputerOpen) {
-              myComputerOpen = false;
-            } else {
-              xpDesktopActive = false;
-            }
-          }
-
-          continue;
-        }
-
-        // World interactions
-        if (e.key.keysym.scancode == SDL_SCANCODE_E) {
-          if (telephone.isNear()) {
-            telephoneMessageOpen = true;
-          } else if (nearComputer) {
-            xpDesktopActive = true;
-          }
+      // Telephone dialogue
+      if (telephoneMessageOpen) {
+        if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+          telephoneMessageOpen = false;
         }
 
         continue;
       }
 
-      if (e.type != SDL_MOUSEBUTTONDOWN || e.button.button != SDL_BUTTON_LEFT ||
-          !xpDesktopActive) {
-        continue;
-      }
+      // Windows XP keyboard controls
+      if (xpDesktopActive) {
+        if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
 
-      SDL_Point mouse{e.button.x, e.button.y};
-
-      // here
-      SDL_Rect startButton{0, screenHeight - 40, 110, 40};
-
-      if (SDL_PointInRect(&mouse, &startButton)) {
-        startMenuOpen = !startMenuOpen;
-        continue;
-      }
-
-      if (startMenuOpen) {
-        SDL_Rect menu{0, screenHeight - 340, 270, 300};
-
-        if (SDL_PointInRect(&mouse, &menu)) {
-          // my computer
-
-          SDL_Rect computerOption{15, screenHeight - 290, 240, 45};
-
-          // docs
-
-          SDL_Rect documentsOption{15, screenHeight - 240, 240, 45};
-
-          // turn off
-
-          SDL_Rect shutdownOption{15, screenHeight - 100, 240, 45};
-
-          if (SDL_PointInRect(&mouse, &computerOption)) {
-            myComputerOpen = true;
-            startMenuOpen = false;
-          } else if (SDL_PointInRect(&mouse, &documentsOption)) {
-            myComputerOpen = true;
-            driveOpen = true;
-            selectedFolder = 0;
-            startMenuOpen = false;
-
-          } else if (SDL_PointInRect(&mouse, &shutdownOption)) {
-            xpDesktopActive = false;
-            // alright
-            startMenuOpen = false;
-            myComputerOpen = false;
-            driveOpen = false;
-
-            selectedFolder = -1;
+          if (openedFile >= 0) {
             openedFile = -1;
+          } else if (selectedFolder >= 0) {
+            selectedFolder = -1;
+          } else if (driveOpen) {
+            driveOpen = false;
+          } else if (myComputerOpen) {
+            myComputerOpen = false;
+          } else {
+            xpDesktopActive = false;
           }
-        } else {
+        }
+
+        continue;
+      }
+
+      // World interaction
+      if (e.key.keysym.scancode == SDL_SCANCODE_E) {
+        if (telephone.isNear()) {
+          telephoneMessageOpen = true;
+        } else if (nearComputer) {
+          xpDesktopActive = true;
+          computerInteracted = true;
+        }
+      }
+
+      continue;
+    }
+
+    if (e.type != SDL_MOUSEBUTTONDOWN || e.button.button != SDL_BUTTON_LEFT) {
+      continue;
+    }
+
+    if (!xpDesktopActive || gameOver) {
+      continue;
+    }
+
+    SDL_Point mouse{e.button.x, e.button.y};
+
+    // Windows XP Start button
+    SDL_Rect startButton{0, screenHeight - 40, 110, 40};
+
+    if (SDL_PointInRect(&mouse, &startButton)) {
+      startMenuOpen = !startMenuOpen;
+      continue;
+    }
+
+    // Start menu options
+    if (startMenuOpen) {
+      SDL_Rect menu{0, screenHeight - 340, 270, 300};
+
+      if (SDL_PointInRect(&mouse, &menu)) {
+
+        SDL_Rect computerOption{15, screenHeight - 290, 240, 45};
+
+        SDL_Rect documentsOption{15, screenHeight - 240, 240, 45};
+
+        SDL_Rect shutdownOption{15, screenHeight - 100, 240, 45};
+
+        // My Computer
+        if (SDL_PointInRect(&mouse, &computerOption)) {
+          myComputerOpen = true;
+          driveOpen = false;
+          selectedFolder = -1;
+          openedFile = -1;
           startMenuOpen = false;
         }
 
+        // Documents
+        else if (SDL_PointInRect(&mouse, &documentsOption)) {
+          myComputerOpen = true;
+          driveOpen = true;
+          selectedFolder = 0;
+          openedFile = -1;
+          startMenuOpen = false;
+        }
+
+        // Shutdown
+        else if (SDL_PointInRect(&mouse, &shutdownOption)) {
+          xpDesktopActive = false;
+          startMenuOpen = false;
+          myComputerOpen = false;
+          driveOpen = false;
+          selectedFolder = -1;
+          openedFile = -1;
+        }
+
+      } else {
+        startMenuOpen = false;
+      }
+
+      continue;
+    }
+
+    // Text file window
+    if (openedFile >= 0) {
+      SDL_Rect closeButton{screenWidth - 65, 55, 25, 25};
+
+      if (SDL_PointInRect(&mouse, &closeButton)) {
+        openedFile = -1;
+      }
+
+      continue;
+    }
+
+    // Folder window
+    if (selectedFolder >= 0) {
+      SDL_Rect closeButton{screenWidth - 65, 55, 25, 25};
+
+      if (SDL_PointInRect(&mouse, &closeButton)) {
+        selectedFolder = -1;
         continue;
       }
 
+      bool allCluesFound = fileRead[0] && fileRead[1];
+      int visibleRow = 0;
+
+      for (int i = 0; i < storyFolders[selectedFolder].fileCount; ++i) {
+
+        if (i == 2 && !allCluesFound) {
+          continue;
+        }
+
+        SDL_Rect fileButton{135, 120 + visibleRow * 45, 300, 35};
+
+        if (SDL_PointInRect(&mouse, &fileButton)) {
+          openedFile = i;
+
+          if (i < 2) {
+            fileRead[i] = true;
+          }
+
+          break;
+        }
+
+        ++visibleRow;
+      }
+
+      continue;
+    }
+
+    if (driveOpen) {
       SDL_Rect closeButton{screenWidth - 65, 55, 25, 25};
 
-      bool allCluesFound = fileRead[0] && fileRead[1];
-      if (openedFile >= 0) {
-        if (SDL_PointInRect(&mouse, &closeButton)) {
-          openedFile = -1;
-        }
-      } else if (selectedFolder >= 0) {
-        if (SDL_PointInRect(&mouse, &closeButton)) {
-          selectedFolder = -1;
-        } else {
-
-          int visibleRow = 0;
-
-          for (int i = 0; i < storyFolders[selectedFolder].fileCount; ++i) {
-
-            if (i == 2 && !allCluesFound) {
-              continue;
-            }
-
-            SDL_Rect fileButton{135, 120 + visibleRow * 45, 300, 35};
-
-            if (SDL_PointInRect(&mouse, &fileButton)) {
-              openedFile = i;
-
-              if (i < 2) {
-                fileRead[i] = true;
-              }
-
-              break;
-            }
-
-            ++visibleRow;
-          }
-        }
+      if (SDL_PointInRect(&mouse, &closeButton)) {
+        driveOpen = false;
+        continue;
       }
 
-      else if (driveOpen) {
-        if (SDL_PointInRect(&mouse, &closeButton)) {
-          driveOpen = false;
-        } else {
-          SDL_Rect folderButton{135, 120, 300, 35};
+      SDL_Rect folderButton{135, 120, 300, 35};
 
-          if (SDL_PointInRect(&mouse, &folderButton)) {
-            selectedFolder = 0;
-          }
-        }
-      } else if (myComputerOpen) {
-        if (SDL_PointInRect(&mouse, &closeButton)) {
-          myComputerOpen = false;
-        } else {
-          SDL_Rect driveButton{135, 120, 250, 60};
-
-          if (SDL_PointInRect(&mouse, &driveButton)) {
-            driveOpen = true;
-          }
-        }
-      } else {
-        SDL_Rect icon{25, 25, 60, 60};
-
-        if (SDL_PointInRect(&mouse, &icon)) {
-          myComputerOpen = true;
-        }
+      if (SDL_PointInRect(&mouse, &folderButton)) {
+        selectedFolder = 0;
       }
+
+      continue;
+    }
+
+    if (myComputerOpen) {
+
+      // Matches the close button drawn in drawMyComputerWindow()
+      SDL_Rect closeButton{screenWidth - 135, 59, 25, 25};
+
+      if (SDL_PointInRect(&mouse, &closeButton)) {
+        myComputerOpen = false;
+        continue;
+      }
+
+      SDL_Rect driveButton{135, 120, 250, 60};
+
+      if (SDL_PointInRect(&mouse, &driveButton)) {
+        driveOpen = true;
+      }
+
+      continue;
+    }
+
+    SDL_Rect computerIcon{25, 25, 60, 60};
+
+    if (SDL_PointInRect(&mouse, &computerIcon)) {
+      myComputerOpen = true;
     }
   }
 }
