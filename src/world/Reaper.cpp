@@ -29,6 +29,7 @@ void Reaper::update(float playerX, float playerY, bool unlocked,
 
     visible = false;
     opacity = 0.0f;
+    moving = false;
     return;
   }
 
@@ -38,7 +39,11 @@ void Reaper::update(float playerX, float playerY, bool unlocked,
 
   if (!active) {
     active = true;
-    appearNearPlayer(playerX, playerY);
+    x = playerX + 650.0f;
+    y = playerY;
+    chooseStalkingPosition(playerX, playerY);
+    visible = false;
+    vanishUntil = now + 1500;
   }
 
   // dis b/w player and reaper
@@ -46,20 +51,50 @@ void Reaper::update(float playerX, float playerY, bool unlocked,
   float dx = playerX - x;
   float dy = playerY - y;
 
+  facingAngle = std::atan2(dy, dx);
   float distance = std::sqrt(dx * dx + dy * dy);
 
   if (visible && distance < 190.0f) {
     visible = false;
     opacity = 0.0f;
+    waitTimer = 1.5f;
+    moving = false;
     vanishUntil = now + 2500;
+  }
+
+  // now move when hidden
+
+  if (!visible && moving) {
+    float moveX = targetX - x;
+    float moveY = targetY - y;
+
+    float targetDistance = std::sqrt(moveX * moveX + moveY * moveY);
+    if (targetDistance > 5.0f) {
+      float step = moveSpeed * deltaTime;
+
+      x += (moveX / targetDistance) * std::min(step, targetDistance);
+      y += (moveY / targetDistance) * std::min(step, targetDistance);
+    } else {
+      moving = false;
+      waitTimer = 1.5f;
+    }
   }
 
   // reappear somewhere else now
 
-  if (!visible && now >= vanishUntil) {
-    appearNearPlayer(playerX, playerY);
+  if (!visible && !moving && now >= vanishUntil) {
+    if (waitTimer > 0.0f) {
+      waitTimer -= deltaTime;
+    } else {
+      visible = true;
+    }
   }
+  // face player
 
+  dx = playerX - x;
+  dy = playerY - y;
+
+  facingAngle = std::atan2(dy, dx);
   // smooth fading
 
   if (visible) {
@@ -124,4 +159,23 @@ void Reaper::render(SDL_Renderer *renderer, const Camera &camera) const {
   SDL_RenderFillRect(renderer, &rightEye);
 
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+}
+
+void Reaper::chooseStalkingPosition(float playerX, float playerY) {
+  const float angles[] = {
+
+      0.0f, 0.8f, 1.6f, 2.4f, 3.2f, 4.0f, 4.8f, 5.6f,
+  };
+
+  const int index = appearance % 8;
+  const float angle = angles[index];
+  const float distance = 650.0f;
+
+  targetX = std::clamp(playerX + std::cos(angle) * distance, 80.0f, 2320.0f);
+
+  targetY = std::clamp(playerY + std::sin(angle) * distance, 80.0f, 1520.0f);
+
+  ++appearance;
+
+  moving = true;
 }

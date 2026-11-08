@@ -32,6 +32,7 @@ void Player::update(float deltaTime, const std::vector<SDL_Rect> &obstacles) {
   }
 
   float dx = moveX * speed * deltaTime;
+  // alright
   float dy = moveY * speed * deltaTime;
 
   float nextX = x + dx;
