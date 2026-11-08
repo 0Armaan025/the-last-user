@@ -14,6 +14,17 @@ void Player::draw(SDL_Renderer *renderer) {
   SDL_RenderFillRect(renderer, &bounds);
 }
 
+void Player::reset() {
+  x = 1175.0f;
+  y = 1350.0f;
+
+  velocityX = 0.0f;
+  velocityY = 0.0f;
+
+  bounds.x = static_cast<int>(x);
+  bounds.y = static_cast<int>(y);
+}
+
 void Player::update(float deltaTime, const std::vector<SDL_Rect> &obstacles) {
   // this logic is messed up for collision, so gonna rewrite it
   float magnitude =

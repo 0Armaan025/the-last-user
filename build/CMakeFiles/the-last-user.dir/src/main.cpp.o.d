@@ -318,6 +318,7 @@ CMakeFiles/the-last-user.dir/src/main.cpp.o: \
  /usr/include/c++/16/bits/istream.tcc \
  /home/armaan025/Desktop/ARMAAN/Coding/projects/the-last-user/src/../include/core/../../include/world/BatSwarm.hpp \
  /usr/include/SDL2/SDL_render.h \
+ /home/armaan025/Desktop/ARMAAN/Coding/projects/the-last-user/src/../include/core/../../include/world/EnergyBlaster.hpp \
  /home/armaan025/Desktop/ARMAAN/Coding/projects/the-last-user/src/../include/core/../../include/world/Reaper.hpp \
  /home/armaan025/Desktop/ARMAAN/Coding/projects/the-last-user/src/../include/core/../../include/world/Telephone.hpp \
  /usr/include/SDL2/SDL_mixer.h \

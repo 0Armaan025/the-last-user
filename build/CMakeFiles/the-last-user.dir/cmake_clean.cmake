@@ -10,6 +10,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/the-last-user.dir/src/main.cpp.o.d"
   "CMakeFiles/the-last-user.dir/src/world/BatSwarm.cpp.o"
   "CMakeFiles/the-last-user.dir/src/world/BatSwarm.cpp.o.d"
+  "CMakeFiles/the-last-user.dir/src/world/EnergyBlaster.cpp.o"
+  "CMakeFiles/the-last-user.dir/src/world/EnergyBlaster.cpp.o.d"
   "CMakeFiles/the-last-user.dir/src/world/Reaper.cpp.o"
   "CMakeFiles/the-last-user.dir/src/world/Reaper.cpp.o.d"
   "CMakeFiles/the-last-user.dir/src/world/Telephone.cpp.o"

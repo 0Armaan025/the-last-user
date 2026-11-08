@@ -21,6 +21,8 @@ public:
   void constrainToWorld(int worldWidth, int worldHeight);
   SDL_Rect getBounds() const;
 
+  void reset();
+
 private:
   // updating position to be closer to the computer idk why i put it there :sob:
   float x = 1175.0f;

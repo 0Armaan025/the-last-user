@@ -26,6 +26,7 @@ add_executable(the-last-user
   src/world/Telephone.cpp
   src/world/Reaper.cpp
   src/world/BatSwarm.cpp
+  src/world/EnergyBlaster.cpp
 )
 
 target_include_directories(the-last-user

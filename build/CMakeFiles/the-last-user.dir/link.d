@@ -10,6 +10,7 @@ bin/the-last-user: \
   CMakeFiles/the-last-user.dir/src/world/Telephone.cpp.o \
   CMakeFiles/the-last-user.dir/src/world/Reaper.cpp.o \
   CMakeFiles/the-last-user.dir/src/world/BatSwarm.cpp.o \
+  CMakeFiles/the-last-user.dir/src/world/EnergyBlaster.cpp.o \
   /usr/lib/libSDL2_ttf.so \
   /usr/lib/libSDL2_mixer.so \
   /usr/lib/libSDL2.so \
@@ -76,6 +77,8 @@ CMakeFiles/the-last-user.dir/src/world/Telephone.cpp.o:
 CMakeFiles/the-last-user.dir/src/world/Reaper.cpp.o:
 
 CMakeFiles/the-last-user.dir/src/world/BatSwarm.cpp.o:
+
+CMakeFiles/the-last-user.dir/src/world/EnergyBlaster.cpp.o:
 
 /usr/lib/libSDL2_ttf.so:
 

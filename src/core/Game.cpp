@@ -145,7 +145,31 @@ void Game::handleEvents() {
       running = false;
       continue;
     }
+    if (gameOver) {
+      if (e.type == SDL_KEYDOWN && !e.key.repeat) {
+        if (e.key.keysym.scancode == SDL_SCANCODE_R) {
+          player.reset();
 
+          playerHealth = 100.0f;
+
+          batSwarm.reset();
+          blaster.reset();
+
+          gameOver = false;
+
+          fileRead[0] = false;
+          fileRead[1] = false;
+          fileRead[2] = false;
+
+          xpDesktopActive = false;
+          telephoneMessageOpen = false;
+        } else if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+          running = false;
+        }
+      }
+
+      continue;
+    }
     // Keyboard input
     if (e.type == SDL_KEYDOWN && !e.key.repeat) {
 
@@ -316,6 +340,14 @@ void Game::update(float deltaTime) {
   // handle Input
   // and update player or something
 
+  if (gameOver) {
+    return;
+  }
+  const Uint8 *keyboard = SDL_GetKeyboardState(nullptr);
+
+  blaster.update(player.getCenterX(), player.getCenterY(),
+                 keyboard[SDL_SCANCODE_SPACE], deltaTime, batSwarm);
+
   reaper.update(player.getCenterX(), player.getCenterY(),
                 fileRead[0] && fileRead[1], deltaTime);
   if (xpDesktopActive) {
@@ -336,6 +368,11 @@ void Game::update(float deltaTime) {
                                  fileRead[0] && fileRead[1], deltaTime);
 
   playerHealth = std::max(0.0f, playerHealth - damage);
+
+  if (playerHealth <= 0.0f) {
+    gameOver = true;
+    return;
+  }
   telephone.update(player.getCenterX(), player.getCenterY());
 
   SDL_Rect computer = world.getComputerBounds();
@@ -388,6 +425,7 @@ void Game::draw() {
   telephone.render(renderer, camera);
   reaper.render(renderer, camera);
   batSwarm.render(renderer, camera);
+  blaster.render(renderer, camera);
   SDL_Rect screenPlayer = camera.apply(player.getBounds());
 
   SDL_SetRenderDrawColor(renderer, 180, 100, 50, 255);
@@ -395,9 +433,13 @@ void Game::draw() {
   SDL_RenderFillRect(renderer, &screenPlayer);
   drawAtmosphere();
   drawHealthBar();
+  drawWaveInfo();
   drawInteractionPrompt();
   if (telephoneMessageOpen) {
     drawTelephoneMessage();
+  }
+  if (gameOver) {
+    drawGameOver();
   }
 
   SDL_RenderPresent(renderer);
@@ -1110,4 +1152,80 @@ void Game::drawHealthBar() {
 
   SDL_SetRenderDrawColor(renderer, 190, 185, 165, 230);
   SDL_RenderDrawRect(renderer, &background);
+}
+
+void Game::drawGameOver() {
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+  SDL_SetRenderDrawColor(renderer, 3, 3, 6, 225);
+
+  SDL_Rect overlay{0, 0, screenWidth, screenHeight};
+
+  SDL_RenderFillRect(renderer, &overlay);
+
+  SDL_Rect panel{screenWidth / 2 - 240, screenHeight / 2 - 120, 480, 240};
+
+  SDL_SetRenderDrawColor(renderer, 14, 13, 18, 255);
+  SDL_RenderFillRect(renderer, &panel);
+
+  SDL_SetRenderDrawColor(renderer, 125, 45, 50, 255);
+  SDL_RenderDrawRect(renderer, &panel);
+
+  auto drawText = [&](const char *message, int y, SDL_Color color) {
+    SDL_Surface *surface = TTF_RenderUTF8_Blended(font, message, color);
+
+    if (!surface) {
+      return;
+    }
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    if (texture) {
+      SDL_Rect destination{screenWidth / 2 - surface->w / 2, y, surface->w,
+                           surface->h};
+
+      SDL_RenderCopy(renderer, texture, nullptr, &destination);
+
+      SDL_DestroyTexture(texture);
+    }
+
+    SDL_FreeSurface(surface);
+  };
+
+  drawText("GAME OVER", panel.y + 45, {205, 65, 65, 255});
+
+  drawText("The town has claimed another visitor.", panel.y + 105,
+           {195, 190, 180, 255});
+
+  drawText("[R] RESTART     [ESC] QUIT", panel.y + 165, {110, 205, 220, 255});
+
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+}
+
+void Game::drawWaveInfo() {
+  if (batSwarm.getWave() <= 0) {
+    return;
+  }
+
+  std::string info = "WAVE " + std::to_string(batSwarm.getWave()) +
+                     "  |  BATS " + std::to_string(batSwarm.getRemaining());
+
+  SDL_Surface *surface =
+      TTF_RenderUTF8_Blended(font, info.c_str(), {210, 210, 195, 255});
+
+  if (!surface) {
+    return;
+  }
+
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+  if (texture) {
+    SDL_Rect destination{25, 55, surface->w, surface->h};
+
+    SDL_RenderCopy(renderer, texture, nullptr, &destination);
+
+    SDL_DestroyTexture(texture);
+  }
+
+  SDL_FreeSurface(surface);
 }

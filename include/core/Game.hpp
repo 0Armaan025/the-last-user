@@ -3,6 +3,7 @@
 #include "../../include/core/Camera.hpp"
 #include "../../include/core/Player.hpp"
 #include "../../include/world/BatSwarm.hpp"
+#include "../../include/world/EnergyBlaster.hpp"
 #include "../../include/world/Reaper.hpp"
 #include "../../include/world/Telephone.hpp"
 #include "../../include/world/World.hpp"
@@ -46,6 +47,12 @@ public:
   float playerHealth = 100.0f;
 
   void drawHealthBar();
+
+  EnergyBlaster blaster;
+  bool gameOver = false;
+  void drawGameOver();
+
+  void drawWaveInfo();
 
 private:
   int screenWidth, screenHeight;

@@ -249,6 +249,30 @@ src/world/BatSwarm.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/the-last-user.dir/build.make CMakeFiles/the-last-user.dir/src/world/BatSwarm.cpp.s
 .PHONY : src/world/BatSwarm.cpp.s
 
+src/world/EnergyBlaster.o: src/world/EnergyBlaster.cpp.o
+.PHONY : src/world/EnergyBlaster.o
+
+# target to build an object file
+src/world/EnergyBlaster.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/the-last-user.dir/build.make CMakeFiles/the-last-user.dir/src/world/EnergyBlaster.cpp.o
+.PHONY : src/world/EnergyBlaster.cpp.o
+
+src/world/EnergyBlaster.i: src/world/EnergyBlaster.cpp.i
+.PHONY : src/world/EnergyBlaster.i
+
+# target to preprocess a source file
+src/world/EnergyBlaster.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/the-last-user.dir/build.make CMakeFiles/the-last-user.dir/src/world/EnergyBlaster.cpp.i
+.PHONY : src/world/EnergyBlaster.cpp.i
+
+src/world/EnergyBlaster.s: src/world/EnergyBlaster.cpp.s
+.PHONY : src/world/EnergyBlaster.s
+
+# target to generate assembly for a file
+src/world/EnergyBlaster.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/the-last-user.dir/build.make CMakeFiles/the-last-user.dir/src/world/EnergyBlaster.cpp.s
+.PHONY : src/world/EnergyBlaster.cpp.s
+
 src/world/Reaper.o: src/world/Reaper.cpp.o
 .PHONY : src/world/Reaper.o
 
@@ -345,6 +369,9 @@ help:
 	@echo "... src/world/BatSwarm.o"
 	@echo "... src/world/BatSwarm.i"
 	@echo "... src/world/BatSwarm.s"
+	@echo "... src/world/EnergyBlaster.o"
+	@echo "... src/world/EnergyBlaster.i"
+	@echo "... src/world/EnergyBlaster.s"
 	@echo "... src/world/Reaper.o"
 	@echo "... src/world/Reaper.i"
 	@echo "... src/world/Reaper.s"
