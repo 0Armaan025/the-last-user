@@ -11,6 +11,7 @@
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
+#include <string>
 
 class Game {
 public:
@@ -98,4 +99,32 @@ private:
   bool telephoneMessageOpen = false;
   void drawTelephoneMessage();
   // alright
+  //
+  // for survival stuff
+
+  float survivalTime = 0.0f;
+  float finalSurvivalTime = 0.0f;
+  float bestSurvivalTime = 0.0f;
+  bool survivalStarted = false;
+
+  std::string recordPath;
+
+  void loadBestSurvivalTime();
+  void saveBestSurvivalTime() const;
+  void drawSurvivalInfo();
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

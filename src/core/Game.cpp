@@ -11,6 +11,9 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
 #include <string>
 
 struct StoryFile {
@@ -18,6 +21,41 @@ struct StoryFile {
   const char *content;
 };
 // going ahead
+
+static std::string formatSurvivalTime(float seconds) {
+  const int totalSeconds =
+      static_cast<int>(std::floor(std::max(0.0f, seconds)));
+
+  const int minutes = totalSeconds / 60;
+  const int remainingSeconds = totalSeconds % 60;
+
+  std::ostringstream output;
+
+  output << std::setfill('0') << std::setw(2) << minutes << ":" << std::setw(2)
+         << remainingSeconds;
+
+  return output.str();
+}
+
+void Game::loadBestSurvivalTime() {
+  std::ifstream file(recordPath);
+
+  if (file.is_open()) {
+    file >> bestSurvivalTime;
+
+    if (!std::isfinite(bestSurvivalTime) || bestSurvivalTime < 0.0f) {
+      bestSurvivalTime = 0.0f;
+    }
+  }
+}
+
+void Game::saveBestSurvivalTime() const {
+  std::ofstream file(recordPath, std::ios::trunc);
+
+  if (file.is_open()) {
+    file << std::fixed << std::setprecision(3) << bestSurvivalTime;
+  }
+}
 
 struct StoryFolder {
   const char *name;
@@ -81,6 +119,20 @@ bool Game::init() {
     std::cout << "SDL ERROR: " << SDL_GetError() << std::endl;
 
     return false;
+  }
+
+  char *saveDirectory = SDL_GetPrefPath("Armaan", "TheLastUser");
+
+  if (saveDirectory) {
+    recordPath = std::string(saveDirectory) + "survival_record.txt";
+
+    SDL_free(saveDirectory);
+
+    loadBestSurvivalTime();
+  }
+
+  else {
+    std::cout << "Could not create save directory: " << SDL_GetError() << "\n";
   }
 
   if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
@@ -149,6 +201,9 @@ void Game::handleEvents() {
       if (e.type == SDL_KEYDOWN && !e.key.repeat) {
         if (e.key.keysym.scancode == SDL_SCANCODE_R) {
           player.reset();
+          survivalTime = 0.0f;
+          finalSurvivalTime = 0.0f;
+          survivalStarted = false;
 
           playerHealth = 100.0f;
 
@@ -361,9 +416,23 @@ void Game::update(float deltaTime) {
   const float damage = batSwarm.update(player.getCenterX(), player.getCenterY(),
                                        fileRead[0] && fileRead[1], deltaTime);
 
+  if (batSwarm.getWave() > 0) {
+    survivalStarted = true;
+  }
+
+  if (survivalStarted) {
+    survivalTime += std::max(0.0f, deltaTime);
+  }
   playerHealth = std::max(0.0f, playerHealth - damage);
 
   if (playerHealth <= 0.0f) {
+    finalSurvivalTime = survivalTime;
+
+    if (finalSurvivalTime > bestSurvivalTime) {
+      bestSurvivalTime = finalSurvivalTime;
+      saveBestSurvivalTime();
+    }
+
     gameOver = true;
     return;
   }
@@ -425,6 +494,7 @@ void Game::draw() {
   SDL_RenderFillRect(renderer, &screenPlayer);
   drawAtmosphere();
   drawHealthBar();
+  drawSurvivalInfo();
   drawWaveInfo();
   if (blaster.isCollected()) {
     SDL_Surface *surface = TTF_RenderUTF8_Blended(
@@ -440,6 +510,7 @@ void Game::draw() {
       }
 
       SDL_FreeSurface(surface);
+      // alright
     }
   };
 
@@ -1172,14 +1243,7 @@ void Game::drawGameOver() {
 
   SDL_RenderFillRect(renderer, &overlay);
 
-  SDL_Rect panel{screenWidth / 2 - 240, screenHeight / 2 - 120, 480, 240};
-
-  SDL_SetRenderDrawColor(renderer, 14, 13, 18, 255);
-  SDL_RenderFillRect(renderer, &panel);
-
-  SDL_SetRenderDrawColor(renderer, 125, 45, 50, 255);
-  SDL_RenderDrawRect(renderer, &panel);
-
+  SDL_Rect panel{screenWidth / 2 - 240, screenHeight / 2 - 145, 480, 290};
   auto drawText = [&](const char *message, int y, SDL_Color color) {
     SDL_Surface *surface = TTF_RenderUTF8_Blended(font, message, color);
 
@@ -1200,6 +1264,29 @@ void Game::drawGameOver() {
 
     SDL_FreeSurface(surface);
   };
+
+  drawText("GAME OVER", panel.y + 35, {205, 65, 65, 255});
+
+  drawText("The town has claimed another visitor.", panel.y + 85,
+           {195, 190, 180, 255});
+
+  const std::string survived =
+      "SURVIVAL TIME: " + formatSurvivalTime(finalSurvivalTime);
+
+  const std::string record =
+      "PERSONAL BEST: " + formatSurvivalTime(bestSurvivalTime);
+
+  drawText(survived.c_str(), panel.y + 130, {110, 205, 220, 255});
+
+  drawText(record.c_str(), panel.y + 165, {220, 190, 110, 255});
+
+  drawText("[R] RESTART     [ESC]  QUIT", panel.y + 225, {195, 195, 185, 255});
+
+  SDL_SetRenderDrawColor(renderer, 14, 13, 18, 255);
+  SDL_RenderFillRect(renderer, &panel);
+
+  SDL_SetRenderDrawColor(renderer, 125, 45, 50, 255);
+  SDL_RenderDrawRect(renderer, &panel);
 
   drawText("GAME OVER", panel.y + 45, {205, 65, 65, 255});
 
@@ -1230,6 +1317,34 @@ void Game::drawWaveInfo() {
 
   if (texture) {
     SDL_Rect destination{25, 55, surface->w, surface->h};
+
+    SDL_RenderCopy(renderer, texture, nullptr, &destination);
+
+    SDL_DestroyTexture(texture);
+  }
+
+  SDL_FreeSurface(surface);
+}
+
+void Game::drawSurvivalInfo() {
+  if (!survivalStarted) {
+    return;
+  }
+
+  std::string info = "SURVIVED  " + formatSurvivalTime(survivalTime) +
+                     "   |  BEST  " + formatSurvivalTime(bestSurvivalTime);
+
+  SDL_Surface *surface =
+      TTF_RenderUTF8_Blended(font, info.c_str(), {210, 210, 95, 255});
+
+  if (!surface) {
+    return;
+  }
+
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+  if (texture) {
+    SDL_Rect destination{25, 115, surface->w, surface->h};
 
     SDL_RenderCopy(renderer, texture, nullptr, &destination);
 
