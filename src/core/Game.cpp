@@ -331,6 +331,11 @@ void Game::update(float deltaTime) {
   obstacles.push_back(world.getComputerBounds());
   player.update(deltaTime, obstacles);
   player.constrainToWorld(2400, 1600);
+
+  float damage = batSwarm.update(player.getCenterX(), player.getCenterY(),
+                                 fileRead[0] && fileRead[1], deltaTime);
+
+  playerHealth = std::max(0.0f, playerHealth - damage);
   telephone.update(player.getCenterX(), player.getCenterY());
 
   SDL_Rect computer = world.getComputerBounds();
@@ -382,12 +387,14 @@ void Game::draw() {
 
   telephone.render(renderer, camera);
   reaper.render(renderer, camera);
+  batSwarm.render(renderer, camera);
   SDL_Rect screenPlayer = camera.apply(player.getBounds());
 
   SDL_SetRenderDrawColor(renderer, 180, 100, 50, 255);
 
   SDL_RenderFillRect(renderer, &screenPlayer);
   drawAtmosphere();
+  drawHealthBar();
   drawInteractionPrompt();
   if (telephoneMessageOpen) {
     drawTelephoneMessage();
@@ -1064,4 +1071,43 @@ void Game::drawTelephoneMessage() {
 
   SDL_FreeSurface(surface);
   // alright
+}
+
+void Game::drawHealthBar() {
+  const int x = 25;
+  const int y = 25;
+  const int width = 220;
+  const int height = 18;
+
+  // bg
+
+  SDL_Rect background{x, y, width, height};
+
+  SDL_SetRenderDrawColor(renderer, 12, 12, 15, 220);
+  SDL_RenderFillRect(renderer, &background);
+
+  // health fill
+
+  int fillWidth = static_cast<int>((playerHealth / 100.0f) * (width - 4));
+
+  SDL_Rect fill{x + 2, y + 2, fillWidth, height - 4};
+
+  if (playerHealth > 60.0f) {
+    SDL_SetRenderDrawColor(renderer, 115, 145, 85, 255);
+  } else if (playerHealth > 30.0f) {
+    SDL_SetRenderDrawColor(renderer, 180, 125, 55, 255);
+
+  } else {
+
+    SDL_SetRenderDrawColor(renderer, 175, 45, 45, 255);
+  }
+
+  if (fillWidth > 0) {
+    SDL_RenderFillRect(renderer, &fill);
+  }
+
+  // border
+
+  SDL_SetRenderDrawColor(renderer, 190, 185, 165, 230);
+  SDL_RenderDrawRect(renderer, &background);
 }

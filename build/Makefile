@@ -225,6 +225,30 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/the-last-user.dir/build.make CMakeFiles/the-last-user.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/world/BatSwarm.o: src/world/BatSwarm.cpp.o
+.PHONY : src/world/BatSwarm.o
+
+# target to build an object file
+src/world/BatSwarm.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/the-last-user.dir/build.make CMakeFiles/the-last-user.dir/src/world/BatSwarm.cpp.o
+.PHONY : src/world/BatSwarm.cpp.o
+
+src/world/BatSwarm.i: src/world/BatSwarm.cpp.i
+.PHONY : src/world/BatSwarm.i
+
+# target to preprocess a source file
+src/world/BatSwarm.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/the-last-user.dir/build.make CMakeFiles/the-last-user.dir/src/world/BatSwarm.cpp.i
+.PHONY : src/world/BatSwarm.cpp.i
+
+src/world/BatSwarm.s: src/world/BatSwarm.cpp.s
+.PHONY : src/world/BatSwarm.s
+
+# target to generate assembly for a file
+src/world/BatSwarm.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/the-last-user.dir/build.make CMakeFiles/the-last-user.dir/src/world/BatSwarm.cpp.s
+.PHONY : src/world/BatSwarm.cpp.s
+
 src/world/Reaper.o: src/world/Reaper.cpp.o
 .PHONY : src/world/Reaper.o
 
@@ -318,6 +342,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/world/BatSwarm.o"
+	@echo "... src/world/BatSwarm.i"
+	@echo "... src/world/BatSwarm.s"
 	@echo "... src/world/Reaper.o"
 	@echo "... src/world/Reaper.i"
 	@echo "... src/world/Reaper.s"

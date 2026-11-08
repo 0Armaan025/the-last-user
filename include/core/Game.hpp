@@ -2,6 +2,7 @@
 
 #include "../../include/core/Camera.hpp"
 #include "../../include/core/Player.hpp"
+#include "../../include/world/BatSwarm.hpp"
 #include "../../include/world/Reaper.hpp"
 #include "../../include/world/Telephone.hpp"
 #include "../../include/world/World.hpp"
@@ -41,6 +42,10 @@ public:
 
   Telephone telephone;
   Reaper reaper;
+  BatSwarm batSwarm;
+  float playerHealth = 100.0f;
+
+  void drawHealthBar();
 
 private:
   int screenWidth, screenHeight;
