@@ -35,3 +35,14 @@ SDL_Rect Camera::apply(const SDL_Rect &worldObject) const {
 
   return screenObject;
 }
+void Camera::snapTo(float targetX, float targetY) {
+  const float maxX =
+      std::max(0.0f, static_cast<float>(worldWidth - screenWidth));
+
+  const float maxY =
+      std::max(0.0f, static_cast<float>(worldHeight - screenHeight));
+
+  x = std::clamp(targetX - static_cast<float>(screenWidth) / 2.0f, 0.0f, maxX);
+
+  y = std::clamp(targetY - static_cast<float>(screenHeight) / 2.0f, 0.0f, maxY);
+}

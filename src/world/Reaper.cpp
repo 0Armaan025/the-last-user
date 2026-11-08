@@ -74,7 +74,7 @@ void Reaper::update(float playerX, float playerY, bool unlocked,
 
   edgeCooldown -= deltaTime;
 
-  if (visible & edgeCooldown <= 0.0f) {
+  if (visible && edgeCooldown <= 0.0f) {
     edgeCooldown = 0.8f;
     edgeCooldown = 8.0f;
   }
@@ -265,7 +265,7 @@ void Reaper::render(SDL_Renderer *renderer, const Camera &camera) const {
     });
 
     bool outside = worldPosition.x < 0 || worldPosition.x >= screenWidth ||
-                   worldPosition.y < 0 | worldPosition.y >= screenHeight;
+                   worldPosition.y < 0 || worldPosition.y >= screenHeight;
 
     if (outside) {
       int edgeX = std::clamp(worldPosition.x, 24, screenWidth - 24);

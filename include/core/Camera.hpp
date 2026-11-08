@@ -7,6 +7,8 @@ public:
   void follow(float targetX, float targetY, float deltaTime);
   // now let's try adding a smoothing factor
 
+  void snapTo(float targetX, float targetY);
+
   SDL_Rect apply(const SDL_Rect &worldObject) const;
 
 private:

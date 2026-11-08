@@ -111,6 +111,8 @@ Game::~Game() {
   TTF_Quit();
   // should work ig
   SDL_Quit();
+  // alrigth let's go ahead now
+  // alrighttt
 }
 
 bool Game::init() {
@@ -198,6 +200,7 @@ void Game::handleEvents() {
       continue;
     }
     if (gameOver) {
+      // Handle menu and game-over states first.
       if (e.type == SDL_KEYDOWN && !e.key.repeat) {
 
         if (gameState == GameState::MainMenu) {
@@ -205,13 +208,13 @@ void Game::handleEvents() {
           case SDLK_UP:
           case SDLK_w:
             selectedMenuOption = (selectedMenuOption + 2) % 3;
-
             break;
 
           case SDLK_DOWN:
           case SDLK_s:
             selectedMenuOption = (selectedMenuOption + 1) % 3;
             break;
+
           case SDLK_RETURN:
           case SDLK_KP_ENTER:
             if (selectedMenuOption == 0) {
@@ -221,11 +224,14 @@ void Game::handleEvents() {
             } else if (selectedMenuOption == 2) {
               running = false;
             }
+            break;
 
+          case SDLK_ESCAPE:
+            running = false;
             break;
           }
 
-          return;
+          continue;
         }
 
         if (gameState == GameState::HowToPlay) {
@@ -233,197 +239,187 @@ void Game::handleEvents() {
               e.key.keysym.sym == SDLK_RETURN) {
             gameState = GameState::MainMenu;
           }
+
+          continue;
         }
 
-        if (e.key.keysym.scancode == SDL_SCANCODE_R) {
-          player.reset();
-          newPersonalRecord = false;
-          survivalTime = 0.0f;
-          finalSurvivalTime = 0.0f;
-          survivalStarted = false;
+        if (gameState == GameState::GameOver) {
+          if (e.key.keysym.scancode == SDL_SCANCODE_R) {
+            startNewGame();
+          } else if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+            running = false;
+          }
 
-          playerHealth = 100.0f;
-
-          batSwarm.reset();
-          blaster.reset();
-
-          gameOver = false;
-
-          fileRead[0] = false;
-          fileRead[1] = false;
-          fileRead[2] = false;
-
-          xpDesktopActive = false;
-          telephoneMessageOpen = false;
-        } else if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
-          running = false;
+          continue;
         }
       }
 
-      continue;
-    }
-    // Keyboard input
-    if (e.type == SDL_KEYDOWN && !e.key.repeat) {
-
-      // Telephone dialogue gets priority
-      if (telephoneMessageOpen) {
-        if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
-          telephoneMessageOpen = false;
-        }
-
+      // Safety guard: don't process gameplay input after game over.
+      if (gameOver) {
         continue;
-      }
+      } // Keyboard input
+      if (e.type == SDL_KEYDOWN && !e.key.repeat) {
 
-      // Windows XP controls
-      if (xpDesktopActive) {
-        if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
-          if (openedFile >= 0) {
-            openedFile = -1;
-          } else if (selectedFolder >= 0) {
-            selectedFolder = -1;
-          } else if (driveOpen) {
-            driveOpen = false;
-          } else if (myComputerOpen) {
-            myComputerOpen = false;
-          } else {
-            xpDesktopActive = false;
+        // Telephone dialogue gets priority
+        if (telephoneMessageOpen) {
+          if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+            telephoneMessageOpen = false;
+          }
+
+          continue;
+        }
+
+        // Windows XP controls
+        if (xpDesktopActive) {
+          if (e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+            if (openedFile >= 0) {
+              openedFile = -1;
+            } else if (selectedFolder >= 0) {
+              selectedFolder = -1;
+            } else if (driveOpen) {
+              driveOpen = false;
+            } else if (myComputerOpen) {
+              myComputerOpen = false;
+            } else {
+              xpDesktopActive = false;
+            }
+          }
+
+          continue;
+        }
+
+        // World interactions
+        if (e.key.keysym.scancode == SDL_SCANCODE_E) {
+          if (telephone.isNear()) {
+            telephoneMessageOpen = true;
+          } else if (nearComputer) {
+            xpDesktopActive = true;
           }
         }
 
         continue;
       }
 
-      // World interactions
-      if (e.key.keysym.scancode == SDL_SCANCODE_E) {
-        if (telephone.isNear()) {
-          telephoneMessageOpen = true;
-        } else if (nearComputer) {
-          xpDesktopActive = true;
-        }
+      if (e.type != SDL_MOUSEBUTTONDOWN || e.button.button != SDL_BUTTON_LEFT ||
+          !xpDesktopActive) {
+        continue;
       }
 
-      continue;
-    }
+      SDL_Point mouse{e.button.x, e.button.y};
 
-    if (e.type != SDL_MOUSEBUTTONDOWN || e.button.button != SDL_BUTTON_LEFT ||
-        !xpDesktopActive) {
-      continue;
-    }
+      // here
+      SDL_Rect startButton{0, screenHeight - 40, 110, 40};
 
-    SDL_Point mouse{e.button.x, e.button.y};
+      if (SDL_PointInRect(&mouse, &startButton)) {
+        startMenuOpen = !startMenuOpen;
+        continue;
+      }
 
-    // here
-    SDL_Rect startButton{0, screenHeight - 40, 110, 40};
+      if (startMenuOpen) {
+        SDL_Rect menu{0, screenHeight - 340, 270, 300};
 
-    if (SDL_PointInRect(&mouse, &startButton)) {
-      startMenuOpen = !startMenuOpen;
-      continue;
-    }
+        if (SDL_PointInRect(&mouse, &menu)) {
+          // my computer
 
-    if (startMenuOpen) {
-      SDL_Rect menu{0, screenHeight - 340, 270, 300};
+          SDL_Rect computerOption{15, screenHeight - 290, 240, 45};
 
-      if (SDL_PointInRect(&mouse, &menu)) {
-        // my computer
+          // docs
 
-        SDL_Rect computerOption{15, screenHeight - 290, 240, 45};
+          SDL_Rect documentsOption{15, screenHeight - 240, 240, 45};
 
-        // docs
+          // turn off
 
-        SDL_Rect documentsOption{15, screenHeight - 240, 240, 45};
+          SDL_Rect shutdownOption{15, screenHeight - 100, 240, 45};
 
-        // turn off
+          if (SDL_PointInRect(&mouse, &computerOption)) {
+            myComputerOpen = true;
+            startMenuOpen = false;
+          } else if (SDL_PointInRect(&mouse, &documentsOption)) {
+            myComputerOpen = true;
+            driveOpen = true;
+            selectedFolder = 0;
+            startMenuOpen = false;
 
-        SDL_Rect shutdownOption{15, screenHeight - 100, 240, 45};
+          } else if (SDL_PointInRect(&mouse, &shutdownOption)) {
+            xpDesktopActive = false;
+            // alright
+            startMenuOpen = false;
+            myComputerOpen = false;
+            driveOpen = false;
 
-        if (SDL_PointInRect(&mouse, &computerOption)) {
-          myComputerOpen = true;
+            selectedFolder = -1;
+            openedFile = -1;
+          }
+        } else {
           startMenuOpen = false;
-        } else if (SDL_PointInRect(&mouse, &documentsOption)) {
-          myComputerOpen = true;
-          driveOpen = true;
-          selectedFolder = 0;
-          startMenuOpen = false;
+        }
 
-        } else if (SDL_PointInRect(&mouse, &shutdownOption)) {
-          xpDesktopActive = false;
-          startMenuOpen = false;
-          myComputerOpen = false;
-          driveOpen = false;
+        continue;
+      }
 
-          selectedFolder = -1;
+      SDL_Rect closeButton{screenWidth - 65, 55, 25, 25};
+
+      bool allCluesFound = fileRead[0] && fileRead[1];
+      if (openedFile >= 0) {
+        if (SDL_PointInRect(&mouse, &closeButton)) {
           openedFile = -1;
         }
-      } else {
-        startMenuOpen = false;
-      }
+      } else if (selectedFolder >= 0) {
+        if (SDL_PointInRect(&mouse, &closeButton)) {
+          selectedFolder = -1;
+        } else {
 
-      continue;
-    }
+          int visibleRow = 0;
 
-    SDL_Rect closeButton{screenWidth - 65, 55, 25, 25};
+          for (int i = 0; i < storyFolders[selectedFolder].fileCount; ++i) {
 
-    bool allCluesFound = fileRead[0] && fileRead[1];
-    if (openedFile >= 0) {
-      if (SDL_PointInRect(&mouse, &closeButton)) {
-        openedFile = -1;
-      }
-    } else if (selectedFolder >= 0) {
-      if (SDL_PointInRect(&mouse, &closeButton)) {
-        selectedFolder = -1;
-      } else {
-        bool allCluesFound = fileRead[0] && fileRead[1];
-
-        int visibleRow = 0;
-
-        for (int i = 0; i < storyFolders[selectedFolder].fileCount; ++i) {
-
-          if (i == 2 && !allCluesFound) {
-            continue;
-          }
-
-          SDL_Rect fileButton{135, 120 + visibleRow * 45, 300, 35};
-
-          if (SDL_PointInRect(&mouse, &fileButton)) {
-            openedFile = i;
-
-            if (i < 2) {
-              fileRead[i] = true;
+            if (i == 2 && !allCluesFound) {
+              continue;
             }
 
-            break;
+            SDL_Rect fileButton{135, 120 + visibleRow * 45, 300, 35};
+
+            if (SDL_PointInRect(&mouse, &fileButton)) {
+              openedFile = i;
+
+              if (i < 2) {
+                fileRead[i] = true;
+              }
+
+              break;
+            }
+
+            ++visibleRow;
           }
-
-          ++visibleRow;
         }
       }
-    }
 
-    else if (driveOpen) {
-      if (SDL_PointInRect(&mouse, &closeButton)) {
-        driveOpen = false;
+      else if (driveOpen) {
+        if (SDL_PointInRect(&mouse, &closeButton)) {
+          driveOpen = false;
+        } else {
+          SDL_Rect folderButton{135, 120, 300, 35};
+
+          if (SDL_PointInRect(&mouse, &folderButton)) {
+            selectedFolder = 0;
+          }
+        }
+      } else if (myComputerOpen) {
+        if (SDL_PointInRect(&mouse, &closeButton)) {
+          myComputerOpen = false;
+        } else {
+          SDL_Rect driveButton{135, 120, 250, 60};
+
+          if (SDL_PointInRect(&mouse, &driveButton)) {
+            driveOpen = true;
+          }
+        }
       } else {
-        SDL_Rect folderButton{135, 120, 300, 35};
+        SDL_Rect icon{25, 25, 60, 60};
 
-        if (SDL_PointInRect(&mouse, &folderButton)) {
-          selectedFolder = 0;
+        if (SDL_PointInRect(&mouse, &icon)) {
+          myComputerOpen = true;
         }
-      }
-    } else if (myComputerOpen) {
-      if (SDL_PointInRect(&mouse, &closeButton)) {
-        myComputerOpen = false;
-      } else {
-        SDL_Rect driveButton{135, 120, 250, 60};
-
-        if (SDL_PointInRect(&mouse, &driveButton)) {
-          driveOpen = true;
-        }
-      }
-    } else {
-      SDL_Rect icon{25, 25, 60, 60};
-
-      if (SDL_PointInRect(&mouse, &icon)) {
-        myComputerOpen = true;
       }
     }
   }
@@ -527,19 +523,6 @@ void Game::draw() {
   SDL_RenderClear(renderer);
 
   // Main menu
-  if (gameState == GameState::MainMenu) {
-    drawMainMenu();
-    SDL_RenderPresent(renderer);
-    return;
-  }
-
-  // Instructions
-  if (gameState == GameState::HowToPlay) {
-    drawHowToPlay();
-    SDL_RenderPresent(renderer);
-    return;
-  }
-
   // Game over
   if (gameState == GameState::GameOver) {
     drawGameOver();
@@ -1429,18 +1412,49 @@ void Game::drawSurvivalInfo() {
 }
 
 void Game::startNewGame() {
+
+  // Reset player
   player.reset();
 
+  // Reset health and survival
   playerHealth = 100.0f;
+  survivalTime = 0.0f;
+  finalSurvivalTime = 0.0f;
+  survivalStarted = false;
+  newPersonalRecord = false;
+
+  // Reset enemies and equipment
+  batSwarm.reset();
+  blaster.reset();
+
+  // Reset story progress
+  for (int i = 0; i < 3; ++i) {
+    fileRead[i] = false;
+  }
+
+  // Reset computer interface
+  xpDesktopActive = false;
+  myComputerOpen = false;
+  driveOpen = false;
+  startMenuOpen = false;
 
   selectedFolder = -1;
   openedFile = -1;
 
+  // Reset interactions
   telephoneMessageOpen = false;
   nearComputer = false;
   computerInteracted = false;
 
+  // Reset game state
+  gameOver = false;
   gameState = GameState::Playing;
+
+  // Position camera immediately
+  camera.snapTo(player.getCenterX(), player.getCenterY());
+
+  // Update telephone proximity and stop any old ringing state
+  telephone.update(player.getCenterX(), player.getCenterY());
 }
 void Game::drawMainMenu() {
   SDL_SetRenderDrawColor(renderer, 5, 7, 9, 255);

@@ -5,9 +5,6 @@
 void World::draw(SDL_Renderer *renderer, const Camera &camera) {
   constexpr int TILE_SIZE = 96;
 
-  SDL_Rect screenComputer = camera.apply(computerBounds);
-  SDL_SetRenderDrawColor(renderer, 130, 110, 90, 255);
-  SDL_RenderFillRect(renderer, &screenComputer);
   for (int y = 0; y < 1600; y += TILE_SIZE) {
     for (int x = 0; x < 2400; x += TILE_SIZE) {
       SDL_Rect tile = camera.apply({x, y, TILE_SIZE, TILE_SIZE});
