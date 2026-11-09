@@ -75,8 +75,8 @@
         showError('Exception: ' + (e && e.stack ? e.stack : String(e)));
       },
       onRuntimeInitialized: function() {
-        setStatus('Ready');
-        setTimeout(function() { statusEl.style.display = 'none'; }, 800);
+        statusEl.style.display = 'none';
+        spinnerEl.style.display = 'none';
       },
       locateFile: function(path) {
         return path;

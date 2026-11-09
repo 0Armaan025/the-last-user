@@ -17,6 +17,10 @@
 #include <string>
 
 #ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
+#ifdef __EMSCRIPTEN__
   #define SDL_PIXELFORMAT_RGBA32 SDL_PIXELFORMAT_ARGB8888
 #endif
 
@@ -652,6 +656,35 @@ void Game::run() {
     return;
   }
 
+#ifdef __EMSCRIPTEN__
+
+  emscripten_set_main_loop_arg(
+      [](void *arg) {
+        Game *game = static_cast<Game *>(arg);
+
+        if (!game->running) {
+          emscripten_cancel_main_loop();
+          return;
+        }
+
+        static Uint64 previousTime = SDL_GetPerformanceCounter();
+
+        Uint64 currentTime = SDL_GetPerformanceCounter();
+
+        float deltaTime =
+            static_cast<float>(static_cast<double>(currentTime - previousTime) /
+                               static_cast<double>(SDL_GetPerformanceFrequency()));
+
+        previousTime = currentTime;
+
+        game->handleEvents();
+        game->update(deltaTime);
+        game->draw();
+      },
+      this, 0, 0);
+
+#else
+
   Uint64 previousTime = SDL_GetPerformanceCounter();
   while (running) {
     Uint64 currentTime = SDL_GetPerformanceCounter();
@@ -665,6 +698,8 @@ void Game::run() {
     update(deltaTime);
     draw();
   }
+
+#endif
 }
 
 // debuggin
