@@ -30,6 +30,47 @@ struct StoryFile {
 };
 // going ahead
 
+static void drawMultilineText(SDL_Renderer *renderer, TTF_Font *font,
+                              const char *text, SDL_Color color, int x, int y) {
+  const int lineSkip = TTF_FontLineSkip(font);
+  const std::string content(text);
+  int cursorY = y;
+
+  size_t lineStart = 0;
+
+  while (lineStart <= content.size()) {
+    const size_t lineEnd = content.find('\n', lineStart);
+
+    const std::string line = content.substr(
+        lineStart, lineEnd == std::string::npos ? std::string::npos
+                                                : lineEnd - lineStart);
+
+    if (!line.empty()) {
+      SDL_Surface *surface = TTF_RenderUTF8_Blended(font, line.c_str(), color);
+
+      if (surface) {
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+        if (texture) {
+          SDL_Rect destination{x, cursorY, surface->w, surface->h};
+
+          SDL_RenderCopy(renderer, texture, nullptr, &destination);
+          SDL_DestroyTexture(texture);
+        }
+
+        SDL_FreeSurface(surface);
+      }
+    }
+
+    if (lineEnd == std::string::npos) {
+      break;
+    }
+
+    cursorY += lineSkip;
+    lineStart = lineEnd + 1;
+  }
+}
+
 static std::string formatSurvivalTime(float seconds) {
   const int totalSeconds =
       static_cast<int>(std::floor(std::max(0.0f, seconds)));
@@ -1281,29 +1322,11 @@ void Game::drawTextFile() {
 
   const char *content = storyFolders[0].files[openedFile].content;
 
-#ifdef __EMSCRIPTEN__
-  SDL_Surface *surface = TTF_RenderUTF8_Blended(font, content, {25, 25, 25, 255});
-#else
-  SDL_Surface *surface = TTF_RenderUTF8_Blended_Wrapped(
-      font, content, {25, 25, 25, 255}, screenWidth - 210);
-#endif
-
-  if (surface) {
-
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-    if (texture) {
-      SDL_Rect dst{105, 100, surface->w, surface->h};
-      SDL_RenderCopy(renderer, texture, nullptr, &dst);
-      SDL_DestroyTexture(texture);
-    }
-
-    SDL_FreeSurface(surface);
-  }
+  drawMultilineText(renderer, font, content, {25, 25, 25, 255}, 105, 100);
 }
 
 void Game::drawTelephoneMessage() {
-  SDL_Rect panel{screenWidth / 2 - 280, screenHeight - 190, 560, 140};
+  SDL_Rect panel{screenWidth / 2 - 280, screenHeight - 245, 560, 195};
 
   SDL_SetRenderDrawColor(renderer, 12, 15, 14, 245);
   SDL_RenderFillRect(renderer, &panel);
@@ -1337,27 +1360,8 @@ void Game::drawTelephoneMessage() {
   }
   // okay now time to add reaper
 
-#ifdef __EMSCRIPTEN__
-  SDL_Surface *surface = TTF_RenderUTF8_Blended(font, message, {215, 210, 190, 255});
-#else
-  SDL_Surface *surface =
-      TTF_RenderUTF8_Blended_Wrapped(font, message, {215, 210, 190, 255}, 510);
-#endif
-
-  if (!surface) {
-    return;
-  }
-
-  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-  if (texture) {
-    SDL_Rect destination{panel.x + 25, panel.y + 15, surface->w, surface->h};
-
-    SDL_RenderCopy(renderer, texture, nullptr, &destination);
-    SDL_DestroyTexture(texture);
-  }
-
-  SDL_FreeSurface(surface);
+  drawMultilineText(renderer, font, message, {215, 210, 190, 255},
+                    panel.x + 25, panel.y + 15);
   // alright
 }
 
