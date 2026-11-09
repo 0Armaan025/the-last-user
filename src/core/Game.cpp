@@ -17,21 +17,7 @@
 #include <string>
 
 #ifdef __EMSCRIPTEN__
-  #ifndef SDL_PointInRect
-    static inline SDL_bool SDL_PointInRect(const SDL_Point *p, const SDL_Rect *r) {
-      return (p->x >= r->x && p->x < r->x + r->w && p->y >= r->y && p->y < r->y + r->h) ? SDL_TRUE : SDL_FALSE;
-    }
-  #endif
   #define SDL_PIXELFORMAT_RGBA32 SDL_PIXELFORMAT_ARGB8888
-  static inline SDL_Surface *SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth, Uint32 format) {
-    Uint32 Rmask, Gmask, Bmask, Amask;
-    #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-      Rmask = 0xff000000; Gmask = 0x00ff0000; Bmask = 0x0000ff00; Amask = 0x000000ff;
-    #else
-      Rmask = 0x000000ff; Gmask = 0x0000ff00; Bmask = 0x00ff0000; Amask = 0xff000000;
-    #endif
-    return SDL_CreateRGBSurface(flags, width, height, depth, Rmask, Gmask, Bmask, Amask);
-  }
 #endif
 
 struct StoryFile {
@@ -880,11 +866,7 @@ void Game::drawWindowsXP() {
     SDL_Rect iconShape{icon.x + 12, icon.y, 32, 32};
 
     SDL_SetRenderDrawColor(renderer, icon.color.r, icon.color.g, icon.color.b,
-#ifdef __EMSCRIPTEN__
-                           icon.color.unused
-#else
                            icon.color.a
-#endif
                            );
 
     SDL_RenderFillRect(renderer, &iconShape);

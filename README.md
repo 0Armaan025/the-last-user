@@ -41,15 +41,18 @@ em++ src/main.cpp src/core/*.cpp src/world/*.cpp -I include \
   --preload-file assets/audio/telephone_ring.wav \
   --preload-file assets/fonts/DejaVuSerif.ttf \
   -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s USE_SDL=2 -s USE_SDL_TTF=2 -s USE_SDL_MIXER=2 \
-  -o build/web/the-last-user.html
+  -o docs/the-last-user.js
 ```
 
-The WASM build outputs to `build/web/` and is ready to deploy on Netlify. Audio and font files are embedded in the `.data` file.
+The WASM build outputs to `docs/` and is ready to deploy on GitHub Pages. Audio and font files are embedded in the `.data` file.
 
-## Deploy on Netlify
+## Deploy on GitHub Pages
+
+The site is served from the `docs/` folder on the `main` branch (Project Settings → Pages → Source: Deploy from branch → `main` / `docs`).
 
 1. Build the WASM version (see Build section).
-2. Drag and drop the `build/web/` folder onto Netlify, or connect your GitHub repo and set the publish directory to `build/web`.
+2. Commit the `docs/` output and push to `main`.
+3. Pages publishes it at `https://0Armaan025.github.io/the-last-user/`.
 
 ## Support
 
